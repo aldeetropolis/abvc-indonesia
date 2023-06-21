@@ -165,8 +165,8 @@ ggplot(data = df |> filter(locationName == "Singapore")) +
   theme_prism()
 dev.off()
 
-# Thailand
-url <- "https://developer.bluedot.global/casecounts/diseases/55?locationIds=1694008&startDate=2019-01-01&isAggregated=false&includeSources=true&api-version=v1"
+# Philippines
+url <- "https://developer.bluedot.global/casecounts/diseases/55?locationIds=1694008&startDate=2020-01-01&isAggregated=false&includeSources=true&api-version=v1"
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
 parse <- content(res)
 dataPhilCase <- data.frame(t(sapply(parse$data,c)))
@@ -175,7 +175,8 @@ dataPhilCase <- dataPhilCase |>
   mutate(year = factor(year(reportedDate)),
          epi = epiweek(reportedDate)) |> 
   filter(totalReportedCases > 0)
-dataPhilCase$totalReportedCases <- abs(as.numeric(dataPhilCase$totalReportedCases))
+dataPhilCase$totalReportedCases <- as.numeric(dataPhilCase$totalReportedCases)
+dataPhilCase <- dataPhilCase |> group_by(year, epi) |> summarise(ma = mean(totalReportedCases)) |> ungroup()
 
 jpeg("dengue thailand 2020-2023.jpeg", units="in", width=10, height=5, res=300)
 ggplot(data = df |> filter(locationName == "Thailand")) +
@@ -207,7 +208,6 @@ dataPhilCase <- dataPhilCase |>
   mutate(year = factor(year(reportedDate)),
          epi = epiweek(reportedDate)) |> 
   filter(totalReportedCases > 0)
-dataPhilCase$totalReportedCases <- abs(as.numeric(dataPhilCase$totalReportedCases))
 
 jpeg("dengue philippines 2020-2023.jpeg", units="in", width=10, height=5, res=300)
 ggplot(data = dataPhilCase) +
