@@ -9,15 +9,18 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r library, message=FALSE, warning=FALSE, include=FALSE}
 library(httr)
 library(jsonlite)
 library(tidyverse)
+library(knitr)
+library(kableExtra)
+library(DT)
 ```
 
 # Disease Alert
-## Reference
-https://developer.bluedot.global/assessments/[?diseaseIds][&locationIds][&startDate][&endDate][&concernLevel][&contextTagTypeId][&eventId][&formatWithHtml][&includeCsv]&api-version=v1
+
+<https://developer.bluedot.global/assessments/>[?diseaseIds][&locationIds][&startDate][&endDate][&concernLevel][&contextTagTypeId][&eventId][&formatWithHtml][&includeCsv]&api-version=v1
 
 ```{r}
 url <- ("https://developer.bluedot.global/assessments/?startDate=2023-06&formatWithHtml=false&api-version=v1")
@@ -28,8 +31,10 @@ View(data)
 ```
 
 # Human Disease Cases and Deaths
+
 ## By Disease for location(s)
-https://developer.bluedot.global/casecounts/diseases/{diseaseId}[?locationIds][&startDate][&endDate][&isAggregated][&includeSources][&includeCsv]&api-version=v1
+
+<https://developer.bluedot.global/casecounts/diseases/%7BdiseaseId%7D>[?locationIds][&startDate][&endDate][&isAggregated][&includeSources][&includeCsv]&api-version=v1
 
 ```{r}
 url <- "https://developer.bluedot.global/casecounts/diseases/55?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201966436&startDate=2020-01&endDate=2023-06-01&isAggregated=true&api-version=v1" 
@@ -40,7 +45,8 @@ View(data)
 ```
 
 ## By Location for disease(s)
-https://developer.bluedot.global/casecounts/locations/{locationId}[?diseaseIds][&startDate][&endDate][&isAggregated][&subLocationTypes][&includeSources][&includeCsv]&api-version=v1
+
+<https://developer.bluedot.global/casecounts/locations/%7BlocationId%7D>[?diseaseIds][&startDate][&endDate][&isAggregated][&subLocationTypes][&includeSources][&includeCsv]&api-version=v1
 
 ```{r pressure, echo=FALSE}
 url <- "https://developer.bluedot.global/casecounts/locations/1643084?diseaseIds=200,%2055&startDate=2023-01&endDate=2023-06&isAggregated=true&api-version=v1"
@@ -51,7 +57,8 @@ View(data)
 ```
 
 # Population Air Travel Historical Volumes
-https://developer.bluedot.global/travel/air/[?originLocationIds][&destinationLocationIds][&originAggregationType][&destinationAggregationType][&startDate][&endDate][&includeCsv]&api-version=v1
+
+<https://developer.bluedot.global/travel/air/>[?originLocationIds][&destinationLocationIds][&originAggregationType][&destinationAggregationType][&startDate][&endDate][&includeCsv]&api-version=v1
 
 ```{r}
 flightUrl <- "https://developer.bluedot.global/travel/air/?originLocationIds=1643084&destinationLocationIds=1643084&originAggregationType=4&destinationAggregationType=4&startDate=2022-06&endDate=2022-12&api-version=v1"
@@ -62,7 +69,8 @@ View(data)
 ```
 
 # COVID-19 Vaccination Coverage
-https://developer.bluedot.global/vulnerability-indicator/vaccination/diseases/200/[?countryIds][&startDate][&endDate][&includeCsv]&api-version=v1
+
+<https://developer.bluedot.global/vulnerability-indicator/vaccination/diseases/200/>[?countryIds][&startDate][&endDate][&includeCsv]&api-version=v1
 
 ```{r}
 vaccUrl <- "https://developer.bluedot.global/vulnerability-indicator/vaccination/diseases/200/?countryIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201966436&endDate=2023-06-11&&api-version=v1"
@@ -76,3 +84,15 @@ data$reportedDate <- ymd(substr(data$reportedDate, 1, 10))
 View(data)
 ```
 
+# Surface Temperature
+
+<https://developer.bluedot.global/vulnerability-indicator/surface-temperature/>[?locationIds][&locationType][&startDate][&endDate][&includeCsv]&api-version=v1
+
+```{r paged.print=TRUE}
+url <- "https://developer.bluedot.global/vulnerability-indicator/surface-temperature/?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822&startDate=2020-01&api-version=v1"
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
+parse <- content(res)
+data <- data.frame(t(sapply(parse$data,c)))
+kable(data) |> kable_styling()
+datatable(data)
+```
