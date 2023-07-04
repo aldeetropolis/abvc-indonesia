@@ -5,6 +5,7 @@ library(readxl)
 library(jsonlite)
 library(httr)
 library(zoo)
+library(writexl)
 
 yearweek <- read_xlsx("week.xlsx")
 yearweek$year <- factor(yearweek$year)
@@ -18,7 +19,8 @@ dataMlyCase <- read_excel("data-adva/malaysia-adva.xlsx") |>
 dataMlyCase$week <- as.numeric(gsub("Week ", "", dataMlyCase$`Week #`))
 dataMlyCase$totalCases <- ifelse(is.na(dataMlyCase$totalCases), dataMlyCase$`Weekly Dengue cases`, dataMlyCase$totalCases)
 dataMlyCase$date <- parse_date_time(paste(dataMlyCase$Year, dataMlyCase$week, 1, sep = "/"), 'Y/W/u')
-dataMlyCase <- filter(dataMlyCase, !is.na(dataMlyCase$totalCases))
+dataMlyCase <- filter(dataMlyCase, !is.na(dataMlyCase$totalCases)) |> 
+  select(date, week, totalCases)
 #dataMlyDeath$week <- as.numeric(gsub("Week ", "", dataMlyDeath$`Week #`))
 #dataMlyDeath$`Weekly Deaths` <- as.numeric(dataMlyDeath$`Weekly Deaths`)
 
@@ -40,6 +42,8 @@ dev.off()
 #   scale_x_continuous(breaks = seq(1, 53, 13), limits = c(0, 53), expand = c(0,0)) +
 #   theme_prism()
 
+write_xlsx(dataMlyCase, "malaysia-dengue.xlsx")
+
 # Thailand
 dataThaiCase <- read_excel("data-adva/thailand-adva.xlsx") |> 
   select(2:4) |> 
@@ -49,7 +53,8 @@ dataThaiCase <- read_excel("data-adva/thailand-adva.xlsx") |>
 dataThaiCase$week <- as.numeric(gsub("Week ", "", dataThaiCase$`Week #`))
 dataThaiCase$totalCases <- ifelse(is.na(dataThaiCase$totalCases), dataThaiCase$`Weekly cases`, dataThaiCase$totalCases)
 dataThaiCase$date <- parse_date_time(paste(dataThaiCase$Year, dataThaiCase$week, 1, sep = "/"), 'Y/W/u')
-dataThaiCase <- filter(dataThaiCase, !is.na(totalCases))
+dataThaiCase <- filter(dataThaiCase, !is.na(totalCases)) |> 
+  select(date, week, totalCases)
 # dataThaiDeath$week <- as.numeric(gsub("Week ", "", dataThaiDeath$`Week #`))
 # dataThaiDeath$`Weekly deaths` <- as.numeric(dataThaiDeath$`Weekly deaths`)
 
@@ -63,6 +68,8 @@ ggplot(data = dataThaiCase) +
   theme_prism()
 dev.off()
 
+write_xlsx(dataThaiCase, "thailand-dengue.xlsx")
+
 # Vietnam
 dataVietCase <- read_excel("data-adva/vietnam-adva.xlsx") |> 
   select(2:4) |>
@@ -71,6 +78,8 @@ dataVietCase <- read_excel("data-adva/vietnam-adva.xlsx") |>
 #dataVietDeath <- read_excel("data-adva/vietnam-adva.xlsx") |> select(2:3, 5) |> filter(!is.na(`Weekly Deaths`))
 dataVietCase$week <- as.numeric(gsub("Week ", "", dataVietCase$`Week #`))
 dataVietCase$date <- parse_date_time(paste(dataVietCase$Year, dataVietCase$week, 1, sep = "/"), 'Y/W/u')
+dataVietCase <- select(dataVietCase, 
+                       date, week, totalCases)
 # dataVietDeath$week <- as.numeric(gsub("Week ", "", dataVietDeath$`Week #`))
 # dataVietDeath$`Weekly Deaths` <- as.numeric(dataVietDeath$`Weekly Deaths`)
 
@@ -84,6 +93,8 @@ ggplot(data = dataVietCase) +
   theme_prism()
 dev.off()
 
+write_xlsx(dataVietCase, "vietnam-dengue.xlsx")
+
 # Cambodia
 dataCbdCase <- read_excel("data-adva/cambodia-adva.xlsx") |> select(2:4) |> 
   mutate(totalCases = round(rollmean(ifelse(is.na(`Weekly Dengue cases`), 0, `Weekly Dengue cases`), k = 12, fill = `Weekly Dengue cases`), 0)) |> 
@@ -91,6 +102,8 @@ dataCbdCase <- read_excel("data-adva/cambodia-adva.xlsx") |> select(2:4) |>
 #dataCbdDeath <- read_excel("data-adva/cambodia-adva.xlsx") |> select(2:3, 5) |> filter(!is.na(`Weekly Deaths`))
 dataCbdCase$week <- as.numeric(gsub("Week ", "", dataCbdCase$`Week #`))
 dataCbdCase$date <- parse_date_time(paste(dataCbdCase$Year, dataCbdCase$week, 1, sep = "/"), 'Y/W/u')
+dataCbdCase <- select(dataCbdCase,
+                      date, week, totalCases)
 # dataCbdDeath$week <- as.numeric(gsub("Week ", "", dataCbdDeath$`Week #`))
 # dataCbdDeath$`Weekly Deaths` <- as.numeric(dataCbdDeath$`Weekly Deaths`)
 
@@ -104,6 +117,8 @@ ggplot(data = dataCbdCase) +
   theme_prism()
 dev.off()
 
+write_xlsx(dataCbdCase, "cambodia-dengue.xlsx")
+
 # Laos
 dataLaoCase <- read_excel("data-adva/laos-adva.xlsx")
 dataLaoCase$`Weekly Dengue cases` <- as.numeric(dataLaoCase$`Weekly Dengue cases`)
@@ -113,6 +128,8 @@ dataLaoCase <- dataLaoCase |>
   filter(Year > 2019)
 dataLaoCase$week <- as.numeric(gsub("Week ", "", dataLaoCase$`Week #`))
 dataLaoCase$date <- parse_date_time(paste(dataLaoCase$Year, dataLaoCase$week, 1, sep = "/"), 'Y/W/u')
+dataLaoCase <- select(dataLaoCase,
+                      date, week, totalCases)
 # dataLaoCase <- filter(dataLaoCase, totalCases > 0)
 
 jpeg("dengue laos 2020-2023.jpeg", units = "px", width = 4000, height = 2250, res = 300)
@@ -124,6 +141,8 @@ ggplot(data = dataLaoCase) +
   # scale_x_continuous(breaks = seq(1, 53, 13), limits = c(0, 53), expand = c(0,0)) +
   theme_prism()
 dev.off()
+
+write_xlsx(dataLaoCase, "lao PDR-dengue.xlsx")
 
 # Philippines
 dataPhilCase <- read_excel("data-adva/philippines-adva.xlsx") |> 
@@ -145,7 +164,8 @@ dataPhilCase <- dataPhilCase |> group_by(year, week) |> summarise(totalCases = s
 dataPhilCase <- left_join(yearweek, dataPhilCase, by = c("year", "week"))
 dataPhilCase$date <- parse_date_time(paste(dataPhilCase$year, dataPhilCase$week, 1, sep = "/"), 'Y/W/u')
 dataPhilCase$totalCases[is.na(dataPhilCase$totalCases)] <- 0
-dataPhilCase <- mutate(dataPhilCase, totalCases = round(rollmean(dataPhilCase$totalCases, k = 12, fill = NA), 0))
+dataPhilCase <- mutate(dataPhilCase, totalCases = round(rollmean(dataPhilCase$totalCases, k = 12, fill = NA), 0)) |> 
+  select(date, week, t)
 
 jpeg("dengue philippines 2020-2023.jpeg", units = "px", width = 4000, height = 2250, res = 300)
 ggplot(data = dataPhilCase) +
@@ -157,14 +177,23 @@ ggplot(data = dataPhilCase) +
   theme_prism()
 dev.off()
 
+write_xlsx(dataPhilCase, "philippine-dengue.xlsx")
+
 # Singapore
 dataSingCase <- read_excel("data-adva/singapore-adva.xlsx") |> 
   select(2:4) |> 
-  mutate(totalCases = round(rollmean(ifelse(is.na(`Weekly Dengue cases`), 0, `Weekly Dengue cases`), k = 12, fill = `Weekly Dengue cases`), 0)) |> 
+  mutate(totalCases = round(
+    rollmean(
+      ifelse(is.na(`Weekly Dengue cases`), 0, `Weekly Dengue cases`), 
+      k = 12, fill = `Weekly Dengue cases`), 0)) |> 
   filter(Year > 2019)
 dataSingCase$week <- as.numeric(gsub("Week ", "", dataSingCase$`Week #`))
-dataSingCase$totalCases <- ifelse(is.na(dataSingCase$totalCases), dataSingCase$`Weekly Dengue cases`, dataSingCase$totalCases)
+dataSingCase$totalCases <- ifelse(is.na(dataSingCase$totalCases), 
+                                  dataSingCase$`Weekly Dengue cases`, 
+                                  dataSingCase$totalCases)
 dataSingCase$date <- parse_date_time(paste(dataSingCase$Year, dataSingCase$week, 1, sep = "/"), 'Y/W/u')
+dataSingCase <- select(dataSingCase,
+                       date, week, totalCases)
 # dataSingCase <- filter(dataSingCase, totalCases > 0)
 
 jpeg("dengue singapore 2020-2023.jpeg", units = "px", width = 4000, height = 2250, res = 300)
@@ -176,6 +205,8 @@ ggplot(data = dataSingCase) +
   # scale_x_continuous(breaks = seq(1, 53, 13), limits = c(0, 53), expand = c(0,0)) +
   theme_prism()
 dev.off()
+
+write_xlsx(dataSingCase, "singapore-dengue.xlsx")
 
 # Indonesia
 url <- "https://developer.bluedot.global/casecounts/diseases/55?locationIds=1643084&startDate=2020-01-01&isAggregated=false&includeSources=true&api-version=v1"
@@ -193,7 +224,9 @@ dataIdnCase <- dataIdnCase |>
 dataIdnCase <- left_join(yearweek, dataIdnCase, by = c("year", "week"))
 dataIdnCase$date <- parse_date_time(paste(dataIdnCase$year, dataIdnCase$week, 1, sep = "/"), 'Y/W/u')
 dataIdnCase$totalCases[is.na(dataIdnCase$totalCases)] <- 0
-dataIdnCase <- mutate(dataIdnCase, totalCases = round(rollmean(dataIdnCase$totalCases, k = 12, fill = NA), 0))
+dataIdnCase <- mutate(dataIdnCase, 
+                      totalCases = round(rollmean(dataIdnCase$totalCases, k = 12, fill = NA), 0)) |> 
+  select(date, week, totalCases)
 
 jpeg("dengue indonesia 2020-2023.jpeg", units="px", width=4000, height=2250, res=300)
 ggplot(data = dataIdnCase) +
@@ -204,6 +237,8 @@ ggplot(data = dataIdnCase) +
   # scale_x_continuous(breaks = seq(1, 53, 13), limits = c(0, 53), expand = c(0,0)) +
   theme_prism()
 dev.off()
+
+write_xlsx(dataIdnCase, "indonesia-dengue.xlsx")
 
 # Myanmar
 url <- "https://developer.bluedot.global/casecounts/diseases/55?locationIds=1327865&startDate=2020-01-01&isAggregated=false&includeSources=true&api-version=v1"
@@ -219,7 +254,9 @@ dataMyrCase <- dataMyrCase |> group_by(year, week) |> summarise(totalCases = sum
 dataMyrCase <- left_join(yearweek, dataMyrCase, by = c("year", "week"))
 dataMyrCase$date <- parse_date_time(paste(dataMyrCase$year, dataMyrCase$week, 1, sep = "/"), 'Y/W/u')
 dataMyrCase$totalCases[is.na(dataMyrCase$totalCases)] <- 0
-dataMyrCase <- mutate(dataMyrCase, totalCases = round(rollmean(dataMyrCase$totalCases, k = 12, fill = NA), 0))
+dataMyrCase <- mutate(dataMyrCase, 
+                      totalCases = round(rollmean(dataMyrCase$totalCases, k = 12, fill = NA), 0)) |> 
+  select(date, week, totalCases)
 
 jpeg("dengue myanmar 2020-2023.jpeg", units="px", width=4000, height=2250, res=300)
 ggplot(data = dataMyrCase) +
@@ -231,15 +268,17 @@ ggplot(data = dataMyrCase) +
   theme_prism()
 dev.off()
 
+write_xlsx(dataIdnCase, "myanmar-dengue.xlsx")
+
 # Total ASEAN
 dataCbdCase <- rename(dataCbdCase, "cbd" = "totalCases") |> select(date, cbd)
 dataIdnCase <- rename(dataIdnCase, "idn" = "totalCases") |> select(date, idn)
-dataLaoCase <- rename(dataLaoCase, "year" = "Year", "lao" = "totalCases") |> select(date, lao)
-dataMlyCase <- rename(dataMlyCase, "year" = "Year", "mly" = "totalCases") |> select(date, mly)
+dataLaoCase <- rename(dataLaoCase, "lao" = "totalCases") |> select(date, lao)
+dataMlyCase <- rename(dataMlyCase, "mly" = "totalCases") |> select(date, mly)
 dataPhilCase <- rename(dataPhilCase, "phil" = "totalCases") |> select(date, phil)
-dataSingCase <- rename(dataSingCase, "year" = "Year", "sing" = "totalCases") |> select(date, sing)
-dataThaiCase <- rename(dataThaiCase, "year" = "Year", "thai" = "totalCases") |> select(date, thai)
-dataVietCase <- rename(dataVietCase, "year" = "Year", "viet" = "totalCases") |> select(date, viet)
+dataSingCase <- rename(dataSingCase, "sing" = "totalCases") |> select(date, sing)
+dataThaiCase <- rename(dataThaiCase, "thai" = "totalCases") |> select(date, thai)
+dataVietCase <- rename(dataVietCase, "viet" = "totalCases") |> select(date, viet)
 dataMyrCase <- rename(dataMyrCase, "myr" = "totalCases") |> select(date, myr)
 
 dataAsean <- full_join(dataCbdCase, dataIdnCase, by = "date") |> 
@@ -253,8 +292,8 @@ dataAsean <- full_join(dataCbdCase, dataIdnCase, by = "date") |>
 
 dataAsean$total <- rowSums(dataAsean[2:10], na.rm = TRUE)
 dataAsean <- filter(dataAsean, total > 0)
-dataAsean$ma <- round(rollmean(dataAsean$total, k = 4, fill = NA), 0)
-dataAsean$ma <- ifelse(is.na(dataAsean$ma), dataAsean$total, dataAsean$ma)
+# dataAsean$ma <- round(rollmean(dataAsean$total, k = 4, fill = NA), 0)
+# dataAsean$ma <- ifelse(is.na(dataAsean$ma), dataAsean$total, dataAsean$ma)
 
 jpeg("dengue asean 2020-2023.jpeg", units="px", width=4000, height=2250, res=300)
 ggplot(data = dataAsean) +
@@ -265,3 +304,7 @@ ggplot(data = dataAsean) +
   # scale_x_continuous(breaks = seq(1, 53, 13), limits = c(0, 53), expand = c(0,0)) +
   theme_prism()
 dev.off()
+
+# write_xlsx(dataAsean, "ASEAN-dengue.xlsx")
+
+# 

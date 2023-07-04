@@ -13,8 +13,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(httr)
 library(jsonlite)
 library(tidyverse)
-library(knitr)
-library(kableExtra)
 library(DT)
 ```
 
@@ -93,6 +91,5 @@ url <- "https://developer.bluedot.global/vulnerability-indicator/surface-tempera
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
 parse <- content(res)
 data <- data.frame(t(sapply(parse$data,c)))
-kable(data) |> kable_styling()
-datatable(data)
+datatable(data, options(list(autoWidth = TRUE)))
 ```
