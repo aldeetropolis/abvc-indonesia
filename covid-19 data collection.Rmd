@@ -25,6 +25,7 @@ data <- read_csv("WHO-COVID-19-global-data.csv") |>
          Date_reported >= "2022-01-01") |> 
   mutate(Country = replace(Country, Country == "Lao People's Democratic Republic", "Lao PDR"),
          Country = replace(Country, Country == "Viet Nam", "Vietnam"))
+View(data)
 ```
 
 ```{r plot}
@@ -39,7 +40,7 @@ plot
 ```
 
 ```{r export}
-jpeg("epicurve COVID-19 ASEAN 6 July 2023.jpeg", units="px", width=3900, height=2250, res=300)
+jpeg("epicurve COVID-19 ASEAN 6 July 2023.jpeg", units="px", width=4000, height=2250, res=300)
 plot
 dev.off()
 ```
