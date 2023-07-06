@@ -1,0 +1,79 @@
+---
+title: "covid-19 data collection"
+output: html_document
+date: "2023-07-06"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r library, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(ggthemes)
+library(scales)
+library(DT)
+```
+
+# COVID-19 daily case data from WHO
+
+```{r data}
+link <- "https://covid19.who.int/WHO-COVID-19-global-data.csv"
+download.file(link, "WHO-COVID-19-global-data.csv")
+data <- read_csv("WHO-COVID-19-global-data.csv") |> 
+  filter(Country_code %in% c("BN", "KH", "ID", "LA", "PH", "TH", "VN", "MM", "SG", "MY"),
+         Date_reported >= "2022-01-01") |> 
+  mutate(Country = replace(Country, Country == "Lao People's Democratic Republic", "Lao PDR"),
+         Country = replace(Country, Country == "Viet Nam", "Vietnam"))
+```
+
+```{r plot}
+plot <- ggplot(data) + 
+  geom_line(aes(Date_reported, Cumulative_cases, color = Country), linewidth = 1.2) +
+  scale_y_continuous(labels = label_number(suffix = "M", scale = 1e-6)) +
+  theme(legend.title = element_blank()) +
+  ylab("Cumulative cases") +
+  scale_x_date(labels = date_format("%b-%Y"), name = element_blank()) +
+  theme_hc()
+plot
+```
+
+```{r export}
+jpeg("epicurve COVID-19 ASEAN 6 July 2023.jpeg", units="px", width=3900, height=2250, res=300)
+plot
+dev.off()
+```
+
+```{r weekly data}
+weeklyData <- data |> filter(Date_reported >= "2023-01-01") |> mutate(week = epiweek(Date_reported)) |> group_by(Country, week) |> summarise(weekly_cases = sum(New_cases), weekly_death = sum(New_deaths)) |> mutate(date = ymd("2023-01-05") + weeks(week))
+weeklyDeath <- weeklyData |> group_by(week) |> summarise(death = sum(weekly_death)) |> mutate(date = ymd("2023-01-05") + weeks(week))
+```
+
+```{r weekly plot}
+plot <- ggplot(weeklyData) + geom_line(aes(date, weekly_cases, colour = Country), linewidth = 1.2) +
+  geom_line(data = weeklyDeath, aes(date, death*100, group = "Number of Death"), linetype = "longdash", linewidth = 1.2) +
+  scale_y_continuous(sec.axis = sec_axis(~ . / 100, name = "No. of Death"), name = "Weekly Cases") +
+  scale_x_date(breaks = "1 month", labels = date_format("%b-%Y"), limits = as.Date(c('2023-01-01','2023-07-06')), name = element_blank()) +
+  theme(legend.title = element_blank()) +
+  theme_hc()
+plot
+```
+
+```{r export}
+jpeg("weekly curve COVID-19 ASEAN 6 July 2023.jpeg", units="px", width=3900, height=2250, res=300)
+plot
+dev.off()
+```
+
+# COVID-19 vaccine data
+
+```{r data}
+link <- "https://covid19.who.int/who-data/vaccination-data.csv"
+download.file(link, "vaccination-data.csv")
+vacc <- read_csv("vaccination-data.csv") |> 
+  filter(ISO3 %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS")) |> 
+  mutate(COUNTRY = replace(COUNTRY, COUNTRY == "Lao People's Democratic Republic", "Lao PDR"),
+         COUNTRY = replace(COUNTRY, COUNTRY == "Viet Nam", "Vietnam")) |> 
+  select(1, 5, 7, 9, 10, 11, 15, 16)
+datatable(vacc)
+```
