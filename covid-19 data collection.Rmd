@@ -13,16 +13,17 @@ library(tidyverse)
 library(ggthemes)
 library(scales)
 library(DT)
+library(lubridate)
 ```
 
 # COVID-19 daily case data from WHO
 
 ```{r data}
-link <- "https://covid19.who.int/WHO-COVID-19-global-data.csv"
-download.file(link, "WHO-COVID-19-global-data.csv")
+#link <- "https://covid19.who.int/WHO-COVID-19-global-data.csv"
+#download.file(link, "WHO-COVID-19-global-data.csv")
 data <- read_csv("WHO-COVID-19-global-data.csv") |> 
   filter(Country_code %in% c("BN", "KH", "ID", "LA", "PH", "TH", "VN", "MM", "SG", "MY"),
-         Date_reported >= "2022-01-01") |> 
+         Date_reported >= "2023-01-01") |> 
   mutate(Country = replace(Country, Country == "Lao People's Democratic Republic", "Lao PDR"),
          Country = replace(Country, Country == "Viet Nam", "Vietnam"))
 View(data)
@@ -30,7 +31,7 @@ View(data)
 
 ```{r plot}
 plot <- ggplot(data) + 
-  geom_line(aes(Date_reported, Cumulative_cases, color = Country), linewidth = 1.2) +
+  geom_line(aes(Date_reported, New_cases, color = Country), linewidth = 1.2) +
   scale_y_continuous(labels = label_number(suffix = "M", scale = 1e-6)) +
   theme(legend.title = element_blank()) +
   ylab("Cumulative cases") +
@@ -51,17 +52,20 @@ weeklyDeath <- weeklyData |> group_by(week) |> summarise(death = sum(weekly_deat
 ```
 
 ```{r weekly plot}
-plot <- ggplot(weeklyData) + geom_line(aes(date, weekly_cases, colour = Country), linewidth = 1.2) +
-  geom_line(data = weeklyDeath, aes(date, death*100, group = "Number of Death"), linetype = "longdash", linewidth = 1.2) +
-  scale_y_continuous(sec.axis = sec_axis(~ . / 100, name = "No. of Death"), name = "Weekly Cases") +
-  scale_x_date(breaks = "1 month", labels = date_format("%b-%Y"), limits = as.Date(c('2023-01-01','2023-07-06')), name = element_blank()) +
+plot <- ggplot(weeklyData) +
+  geom_area(aes(date, weekly_cases, colour = Country, fill = Country)) +
+  geom_line(data = weeklyDeath, aes(date, death*200, group = "Number of Death"),
+            linetype = "longdash", linewidth = 1.2) +
+  scale_y_continuous(sec.axis = sec_axis(~ . / 200, name = "No. of Death"), name = "Weekly Cases") +
+  scale_x_date(breaks = "1 month", labels = date_format("%b-%Y"),
+               limits = as.Date(c('2023-01-01','2023-07-06')), name = element_blank()) +
   theme(legend.title = element_blank()) +
   theme_hc()
 plot
 ```
 
 ```{r export}
-jpeg("weekly curve COVID-19 ASEAN 6 July 2023.jpeg", units="px", width=3900, height=2250, res=300)
+jpeg("weekly curve COVID-19 ASEAN 6 July 2023 area.jpeg", units="px", width=4000, height=2250, res=300)
 plot
 dev.off()
 ```
