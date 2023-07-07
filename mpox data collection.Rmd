@@ -1,0 +1,35 @@
+---
+title: "Mpox data collection"
+output: html_document
+date: "2023-07-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(DT)
+```
+
+# Data import
+
+```{r data}
+link <- "https://raw.githubusercontent.com/owid/monkeypox/main/owid-monkeypox-data.csv"
+download.file(link, "mpox-owid.csv")
+data <- read_csv("mpox-owid.csv") |> 
+  filter(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"))
+datatable(data)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
