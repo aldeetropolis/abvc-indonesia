@@ -2,7 +2,7 @@ library(httr)
 library(jsonlite)
 
 # Indonesia
-inaUrl <- "https://developer.bluedot.global/casecounts/locations/1643084?diseaseIds=239,%20200,%2013,%2055,%20141,%2064,%2059,%2086,%2012,%2099,%20100,%2032,%206,%208,%2043,%2026,%2053&startDate=2023-06-29&isAggregated=false&includeSources=true&api-version=v1"
+inaUrl <- "https://developer.bluedot.global/casecounts/locations/1643084?diseaseIds=239,%20200,%2013,%2055,%20141,%2064,%2059,%2086,%2012,%2099,%20100,%2032,%206,%208,%2043,%2026,%2053,%2011,%20112,%20113,%20208&startDate=2023-07-04&isAggregated=false&includeSources=true&api-version=v1"
 res <- GET(inaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
 parse <- content(res)
 inaData <- data.frame(t(sapply(parse$data,c)))
