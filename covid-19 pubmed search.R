@@ -14,7 +14,6 @@ renderDataTable(data)
 
 ui <- shinyUI(fluidPage(
   title = 'Covid-19 related publication for the past 7 days',
-  h1('A Table Using Server-side Processing'),
   fluidRow(
     column(2),
     column(8, DT::dataTableOutput('tbl_a')),
