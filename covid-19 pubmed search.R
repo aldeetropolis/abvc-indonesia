@@ -3,7 +3,7 @@ library(writexl)
 library(DT)
 library(shiny)
 
-topic <- EUtilsQuery("covid-19")
+topic <- "covid-19"
 query <- EUtilsSummary(topic, type="esearch", db="pubmed", reldate = 7)
 summary(query)
 
