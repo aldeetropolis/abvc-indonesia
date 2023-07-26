@@ -12,38 +12,35 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r library, message=FALSE, warning=FALSE}
 library(tidyverse)
-library(DT)
 library(httr)
 library(jsonlite)
+library(flextable)
 ```
 
 # Indonesia
 
 ```{r}
 inaUrl <- "https://developer.bluedot.global/casecounts/locations/1643084?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
-res <- GET(inaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
-parse <- content(res)
-inaData <- data.frame(t(sapply(parse$data,c)))
-datatable(inaData)
+res <- GET(inaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+inaData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+flextable(inaData)
 ```
 
 # Brunei darussalam
 
 ```{r}
 brnUrl <- "https://developer.bluedot.global/casecounts/locations/1820814?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
-res <- GET(brnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
-parse <- content(res)
-brnData <- data.frame(t(sapply(parse$data,c)))
-datatable(brnData)
+res <- GET(brnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+brnData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+flextable(brnData)
 ```
 
 # Cambodia
 
 ```{r}
 khmUrl <- "https://developer.bluedot.global/casecounts/locations/1831722?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
-res <- GET(khmUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
-parse <- content(res)
-khmData <- data.frame(t(sapply(parse$data,c)))
+res <- GET(khmUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+khmData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
 datatable(khmData)
 ```
 
@@ -51,30 +48,27 @@ datatable(khmData)
 
 ```{r}
 laoUrl <- "https://developer.bluedot.global/casecounts/locations/1655842?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
-res <- GET(laoUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
-parse <- content(res)
-laoData <- data.frame(t(sapply(parse$data,c)))
-datatable(laoData)
+res <- GET(laoUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+laoData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+flextable(laoData)
 ```
 
 # Malaysia
 
 ```{r}
 mlyUrl <- "https://developer.bluedot.global/casecounts/locations/1733045?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
-res <- GET(mlyUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
-parse <- content(res)
-mlyData <- data.frame(t(sapply(parse$data,c)))
-datatable(mlyData)
+res <- GET(mlyUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+mlyData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+flextable(mlyData)
 ```
 
 # Myanmar
 
 ```{r}
 myrUrl <- "https://developer.bluedot.global/casecounts/locations/1327865?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
-res <- GET(myrUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
-parse <- content(res)
-myrData <- data.frame(t(sapply(parse$data,c)))
-datatable(myrData)
+res <- GET(myrUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+myrData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+flextable(myrData)
 ```
 
 # Philippines
