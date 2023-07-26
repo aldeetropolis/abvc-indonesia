@@ -12,7 +12,6 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 library(ggthemes)
 library(scales)
-library(DT)
 library(lubridate)
 library(flextable)
 ```
@@ -26,21 +25,23 @@ data <- read_csv("WHO-COVID-19-global-data.csv") |>
   filter(Country_code %in% c("BN", "KH", "ID", "LA", "PH", "TH", "VN", "MM", "SG", "MY")) |> 
   mutate(Country = replace(Country, Country == "Lao People's Democratic Republic", "Lao PDR"),
          Country = replace(Country, Country == "Viet Nam", "Vietnam"))
-data22 <- data |> filter(Date_reported <= "2022-12-31")
+tail(data)
 ```
 
-# Calcualate weekly data
+# Epicurve
 ```{r}
-reportData <- data |> filter(Date_reported > "2023-07-13") |> group_by(Country) |> 
-  summarise(newCases = sum(New_cases), newDeaths = sum(New_deaths)) |> ungroup()
-flextable(reportData)
+data22 <- data |> filter(Date_reported == "2022-12-31") |> 
+  select(Country, Cumulative_cases) |> 
+  rename("cumCases" = "Cumulative_cases")
+reportData <- data |> full_join(data22) |> 
+  filter(Date_reported >= "2023-01-01") |> group_by(Country) |> 
+  mutate(case = Cumulative_cases - cumCases) |> ungroup()
 ```
-
 
 ```{r plot}
-plot <- ggplot(data) + 
-  geom_line(aes(Date_reported, Cumulative_cases, color = Country), linewidth = 1.2) +
-  scale_y_continuous(labels = label_number(suffix = "M", scale = 1e-6)) +
+plot <- ggplot(reportData) + 
+  geom_line(aes(Date_reported, case, color = Country), linewidth = 1.2) +
+  scale_y_continuous(labels = label_number(suffix = "K", scale = 1e-3)) +
   theme(legend.title = element_blank()) +
   ylab("Cumulative cases") +
   scale_x_date(labels = date_format("%b-%Y"), name = element_blank()) +
@@ -54,6 +55,7 @@ plot
 dev.off()
 ```
 
+# Weekly graph
 ```{r weekly data}
 weeklyData <- data |> filter(Date_reported >= "2022-12-25") |> mutate(week = epiweek(Date_reported)) |> group_by(Country, week) |> summarise(weekly_cases = sum(New_cases), weekly_death = sum(New_deaths)) |> mutate(date = ymd("2022-12-25") + weeks(week))
 weeklyDeath <- weeklyData |> group_by(week) |> summarise(death = sum(weekly_death)) |> mutate(date = ymd("2022-12-25") + weeks(week))
