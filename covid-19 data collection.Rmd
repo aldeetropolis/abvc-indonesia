@@ -29,17 +29,6 @@ data <- read_csv("WHO-COVID-19-global-data.csv") |>
 tail(data)
 ```
 
-# Epicurve
-
-```{r}
-data22 <- data |> filter(Date_reported == "2022-12-31") |> 
-  select(Country, Cumulative_cases) |> 
-  rename("cumCases" = "Cumulative_cases")
-reportData <- data |> full_join(data22) |> 
-  filter(Date_reported >= "2023-01-01") |> group_by(Country) |> 
-  mutate(case = Cumulative_cases - cumCases) |> ungroup()
-```
-
 ```{r plot}
 plot <- ggplot(reportData) + 
   geom_line(aes(Date_reported, case, color = Country), linewidth = 1.2) +
@@ -69,11 +58,6 @@ weeklyDeath <- weeklyData |> group_by(week) |> summarise(death = sum(weekly_deat
   mutate(date = ymd("2022-12-25") + weeks(week)) |> filter(week != 52)
 ```
 
-```{r weekly data}
-weeklyData <- data |> filter(Date_reported >= "2023-01-01") |> mutate(week = epiweek(Date_reported)) |> group_by(Country, week) |> summarise(weekly_cases = sum(New_cases), weekly_death = sum(New_deaths)) |> mutate(cumCase = cumsum(weekly_cases)) |> ungroup()
-weeklyDeath <- weeklyData |> group_by(week) |> summarise(death = sum(weekly_death))
-```
-
 ```{r weekly plot}
 plot <- ggplot(weeklyData) +
   geom_area(aes(date, weekly_cases, fill = Country)) +
@@ -99,7 +83,7 @@ dev.off()
 ```{r data}
 #link <- "https://covid19.who.int/who-data/vaccination-data.csv"
 #download.file(link, "vaccination-data.csv")
-vacc <- read_csv("vaccination-data (2).csv") |> 
+vacc <- read_csv("vaccination-data.csv") |> 
   filter(ISO3 %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS")) |> 
   mutate(COUNTRY = replace(COUNTRY, COUNTRY == "Lao People's Democratic Republic", "Lao PDR"),
          COUNTRY = replace(COUNTRY, COUNTRY == "Viet Nam", "Vietnam")) |> 
