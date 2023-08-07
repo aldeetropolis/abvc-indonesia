@@ -13,7 +13,9 @@ knitr::opts_chunk$set(echo = TRUE)
 library(httr)
 library(jsonlite)
 library(tidyverse)
-library(DT)
+library(flextable)
+library(lubridate)
+library(ggthemes)
 ```
 
 # Disease Alert
@@ -84,12 +86,54 @@ View(data)
 
 # Surface Temperature
 
-<https://developer.bluedot.global/vulnerability-indicator/surface-temperature/>[?locationIds][&locationType][&startDate][&endDate][&includeCsv]&api-version=v1
+https://developer.bluedot.global/vulnerability-indicator/surface-temperature/[?locationIds][&locationType][&startDate][&endDate][&includeCsv]&api-version=v1
 
 ```{r paged.print=TRUE}
-url <- "https://developer.bluedot.global/vulnerability-indicator/surface-temperature/?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822&startDate=2020-01&api-version=v1"
-res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
-parse <- content(res)
-tempData <- data.frame(t(sapply(parse$data,c)))
-datatable(tempData, options(list(autoWidth = TRUE)))
+url <- "https://developer.bluedot.global/vulnerability-indicator/surface-temperature/?locationIds=1820814,1831722,1643084,1655842,1733045,1327865,01694008,1880251,1605651,1562822&startDate=2017-01&api-version=v1"
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+tempData <- enframe(pluck(res, "data")) |> unnest_wider(value)
+#flextable(tempData)
 ```
+
+```{r paged.print=TRUE}
+df <- tempData |> 
+  mutate(date = as.Date(paste0(aggregationMonth, "-01"), format = "%Y-%m-%d")) |> 
+  group_by(date) |> summarise(avgTemp = mean(avgTemperature),
+                              minTemp = mean(minTemperature),
+                              maxTemp = mean(maxTemperature)) |> 
+  pivot_longer(cols = c(avgTemp:maxTemp), names_to = "var", values_to = "temp")
+df_avg <- df |> 
+  mutate(qtr = quarter(date, type = "date_last"), temp = round(temp, 2)) |>
+  group_by(qtr, var) |> filter(row_number()==n())
+```
+
+```{r}
+plot <- ggplot(df |> filter(date >= "2021-01-01")) + 
+  geom_col(aes(x = date, y = temp, fill = var)) +
+  geom_smooth(data = df |> filter(var == "avgTemp", date >= "2021-01-01"),
+              aes(x = date, y = as.numeric(temp)), 
+              method = "lm", size = 1, color = "black")
+plot
+```
+
+```{r}
+plot <- ggplot(df |> filter(date >= "2022-01-01")) + 
+  geom_smooth(aes(x = date, y = as.numeric(temp), color = var), 
+              method = "loess", size = 1, se = FALSE) +
+  geom_text(data = filter(df_avg, qtr >= "2022-01-01" && qtr <= "2023-07-01"), 
+            aes(qtr, as.numeric(temp), label = temp)) +
+  xlab(element_blank()) +
+  ylab("Temperature (℃)") +
+  scale_color_manual(name = element_blank(), 
+                     values = c("green", "red", "blue"),
+                     labels = c("Average Temperature", "Max Temperature", "Min Temperature")) +
+  theme_hc()
+plot
+```
+
+```{r}
+jpeg("ASEAN avg temp 2022-2023.jpeg", units="px", width=4000, height=2250, res=300)
+plot
+dev.off()
+```
+
