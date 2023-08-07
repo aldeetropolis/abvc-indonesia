@@ -86,7 +86,7 @@ View(data)
 
 # Surface Temperature
 
-https://developer.bluedot.global/vulnerability-indicator/surface-temperature/[?locationIds][&locationType][&startDate][&endDate][&includeCsv]&api-version=v1
+<https://developer.bluedot.global/vulnerability-indicator/surface-temperature/>[?locationIds][&locationType][&startDate][&endDate][&includeCsv]&api-version=v1
 
 ```{r paged.print=TRUE}
 url <- "https://developer.bluedot.global/vulnerability-indicator/surface-temperature/?locationIds=1820814,1831722,1643084,1655842,1733045,1327865,01694008,1880251,1605651,1562822&startDate=2017-01&api-version=v1"
@@ -123,11 +123,11 @@ plot <- ggplot(df |> filter(date >= "2022-01-01")) +
   geom_text(data = filter(df_avg, qtr >= "2022-01-01" && qtr <= "2023-07-01"), 
             aes(qtr, as.numeric(temp), label = temp)) +
   xlab(element_blank()) +
-  ylab("Temperature (℃)") +
+  ylab("Temperature (\u00B0C)")+
   scale_color_manual(name = element_blank(), 
                      values = c("green", "red", "blue"),
                      labels = c("Average Temperature", "Max Temperature", "Min Temperature")) +
-  theme_hc()
+  theme_hc(base_size = 16)
 plot
 ```
 
@@ -136,4 +136,3 @@ jpeg("ASEAN avg temp 2022-2023.jpeg", units="px", width=4000, height=2250, res=3
 plot
 dev.off()
 ```
-
