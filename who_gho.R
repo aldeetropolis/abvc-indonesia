@@ -23,7 +23,7 @@ timeperiod <- enframe(pluck(res, "value")) |> unnest_wider(value)
 
 indUrl <- "https://ghoapi.azureedge.net/api/Indicator"
 res <- GET(indUrl) |> content()
-indicator <- enframe(pluck(res, "value")) |> unnest_wider(value)
+indicator <- enframe(pluck(res, "value")) |> unnest_wider(value) |> filter(grepl("Hepatitis", `IndicatorName`))
 
 # Diphtheria - number of reported cases
 diphUrl <- "https://ghoapi.azureedge.net/api/WHS3_41"
@@ -128,3 +128,27 @@ dev.off()
 plot_pop <- ggplot(df) + geom_line(aes(year, case_per_pop, color = country_name))
 
 writexl::write_xlsx(df, "asean diphtheria data who 2018-2022 (1).xlsx")
+
+# Hepatitis
+hepUrl <- "https://ghoapi.azureedge.net/api/WHS4_117"
+res <- GET(hepUrl) |> content()
+hepData <- enframe(pluck(res, "value")) |> 
+  unnest_wider(value) |> 
+  filter(TimeDim >= 2018, SpatialDim %in% c("BRN", "KHM", "IDN", "LAO", "MYS", "MMR", "PHL", "SGP", "THA", "VNM")) |> 
+  select(SpatialDim, TimeDim, NumericValue) |> 
+  rename(country_code = SpatialDim,
+         year = TimeDim,
+         coverage = NumericValue) |> 
+  left_join(country, by = "country_code")
+
+plot_coverage <- ggplot(hepData, aes(year, coverage, colour = country_name), color = "black", stat = "bin", linewidth = 5) + 
+  geom_line() + 
+  ylab("Number of case") +
+  theme_hc() +
+  theme(legend.title = element_blank(), 
+        plot.margin = margin(20, 90, 20, 20),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size = 12),
+        axis.text.x = element_text(size = 12),
+        axis.text.y = element_text(size = 12))
+plot_coverage
