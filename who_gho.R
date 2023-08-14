@@ -139,16 +139,51 @@ hepData <- enframe(pluck(res, "value")) |>
   rename(country_code = SpatialDim,
          year = TimeDim,
          coverage = NumericValue) |> 
-  left_join(country, by = "country_code")
+  left_join(country, by = "country_code") |> 
+  mutate(country_name = recode(country_name,
+                               "Lao People's Democratic Republic" = "Lao PDR",
+                               "Brunei Darussalam" = "Brunei DS"),
+         name_lab = if_else(year == 2022, country_name, NA_character_))
 
-plot_coverage <- ggplot(hepData, aes(year, coverage, colour = country_name), color = "black", stat = "bin", linewidth = 5) + 
-  geom_line() + 
-  ylab("Number of case") +
+plot_coverage <- ggplot(hepData, aes(year, coverage, colour = country_name), color = "black") + 
+  geom_line(linewidth = .9) +
+  geom_vline(
+    aes(xintercept = year), 
+    color = "grey80",
+    linetype = "dotted",
+    size = .8
+  ) +
+  geom_text_repel(aes(color = country_name, label = name_lab),
+                  fontface = "bold",
+                  size = 4,
+                  direction = "y",
+                  xlim = c(2022.9, NA),
+                  hjust = 0,
+                  segment.size = .7,
+                  segment.alpha = .5,
+                  segment.linetype = "dotted",
+                  box.padding = .4,
+                  segment.curvature = -0.1,
+                  segment.ncp = 3,
+                  segment.angle = 20) + 
+  coord_cartesian(
+    clip = "off",
+    ylim = c(25, 100)
+  ) +
+  scale_x_continuous(
+    expand = c(0, 0),
+    limits = c(2018, 2022), 
+    breaks = seq(2018, 2022)
+  ) + ylab("Vaccine coverage in %") +
   theme_hc() +
-  theme(legend.title = element_blank(), 
+  theme(legend.position = "none", 
         plot.margin = margin(20, 90, 20, 20),
         axis.title.x = element_blank(),
         axis.title.y = element_text(size = 12),
         axis.text.x = element_text(size = 12),
         axis.text.y = element_text(size = 12))
 plot_coverage
+
+jpeg("Hep B Vaccine coverage among children below 1 year in ASEAN Region.jpeg", units="px", width=4000, height=2250, res=300)
+plot_coverage
+dev.off()
