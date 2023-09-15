@@ -23,7 +23,9 @@ endDate <- "&endDate=2023-09-09"
 ```
 
 # Indonesia
+
 ## News Sources
+
 ```{r}
 inaUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1643084?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(inaUrl, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
@@ -39,6 +41,7 @@ flextable(inaNews)
 ```
 
 ## Aggregated
+
 ```{r}
 inaUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1643084?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(inaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -47,9 +50,10 @@ inaData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseN
 flextable(inaData)
 ```
 
-
 # Brunei Darussalam
+
 ## News
+
 ```{r}
 brnUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1820814?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(brnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -65,6 +69,7 @@ flextable(brnNews)
 ```
 
 ## Aggregate
+
 ```{r}
 brnUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1820814?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(brnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -73,7 +78,9 @@ flextable(brnData)
 ```
 
 # Cambodia
+
 ## News
+
 ```{r}
 khmUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1831722?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(khmUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -89,6 +96,7 @@ flextable(khmNews)
 ```
 
 ## Aggregate
+
 ```{r}
 khmUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1831722?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(khmUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -97,7 +105,9 @@ flextable(khmData)
 ```
 
 # Lao PDR
+
 ## News
+
 ```{r}
 laoUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1655842?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(laoUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -113,6 +123,7 @@ flextable(laoNews)
 ```
 
 ## Aggregate
+
 ```{r}
 laoUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1655842?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(laoUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -121,7 +132,9 @@ flextable(laoData)
 ```
 
 # Malaysia
+
 ## News
+
 ```{r}
 mlyUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1733045?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(mlyUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -137,6 +150,7 @@ flextable(mlyNews)
 ```
 
 ## Aggregate
+
 ```{r}
 mlyUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1733045?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(mlyUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -145,7 +159,9 @@ flextable(mlyData)
 ```
 
 # Myanmar
+
 ## News
+
 ```{r}
 myrUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1327865?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(myrUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -159,7 +175,9 @@ for(i in 1:length_df){
 }
 flextable(myrNews)
 ```
+
 ## Aggregate
+
 ```{r}
 myrUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1327865?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(myrUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -167,10 +185,10 @@ myrData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseN
 flextable(myrData)
 ```
 
-
-
 # Philippines
+
 ## News
+
 ```{r}
 phlUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1694008?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(phlUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -186,6 +204,7 @@ flextable(phlNews)
 ```
 
 ## Aggregate
+
 ```{r}
 phlUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1694008?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(phlUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -194,7 +213,9 @@ flextable(phlData)
 ```
 
 # Singapore
+
 ## News
+
 ```{r}
 sgpUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1880251?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -210,6 +231,7 @@ flextable(sgpNews)
 ```
 
 ## Aggregate
+
 ```{r}
 sgpUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1880251?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -218,6 +240,7 @@ flextable(sgpData)
 ```
 
 # Thailand
+
 ```{r}
 thaUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1605651?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(thaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -233,6 +256,7 @@ flextable(thaNews)
 ```
 
 ## Aggregate
+
 ```{r}
 thaUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1605651?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(thaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -241,7 +265,9 @@ flextable(thaData)
 ```
 
 # Vietnam
+
 ## News
+
 ```{r}
 vnmUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1562822?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(vnmUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -257,6 +283,7 @@ flextable(vnmNews)
 ```
 
 ## Aggregate
+
 ```{r}
 vnmUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1562822?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(vnmUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -265,7 +292,9 @@ flextable(vnmData)
 ```
 
 # China
+
 ## News
+
 ```{r}
 chnUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1814991?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(chnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -281,6 +310,7 @@ flextable(chnNews)
 ```
 
 ## Aggregate
+
 ```{r}
 chnUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1814991?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(chnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -289,7 +319,9 @@ flextable(chnData)
 ```
 
 # South Korea
+
 ## News
+
 ```{r}
 korUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1835841?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(korUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -305,6 +337,7 @@ flextable(korNews)
 ```
 
 ## Aggregate
+
 ```{r}
 korUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1835841?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(korUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -313,7 +346,9 @@ flextable(korData)
 ```
 
 # Japan
+
 ## News
+
 ```{r}
 jpnUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1861060?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(jpnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -329,6 +364,7 @@ flextable(jpnNews)
 ```
 
 ## Aggregate
+
 ```{r}
 jpnUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1861060?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(jpnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -337,7 +373,9 @@ flextable(jpnData)
 ```
 
 # Taiwan
+
 ## News
+
 ```{r}
 twnUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1668284?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(twnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -353,6 +391,7 @@ flextable(twnNews)
 ```
 
 ## Aggregate
+
 ```{r}
 twnUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1668284?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(twnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -361,7 +400,9 @@ flextable(twnData)
 ```
 
 # Hong kong
+
 ## News
+
 ```{r}
 hkgUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1819730?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(hkgUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -377,6 +418,7 @@ flextable(hkgNews)
 ```
 
 ## Aggregate
+
 ```{r}
 hkgUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1819730?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(hkgUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -385,7 +427,9 @@ flextable(hkgData)
 ```
 
 # Macau
+
 ## News
+
 ```{r}
 macUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1821275?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(macUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -401,6 +445,7 @@ flextable(macNews)
 ```
 
 ## Aggregate
+
 ```{r}
 macUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1821275?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(macUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -409,7 +454,9 @@ flextable(macData)
 ```
 
 # Timor Leste
+
 ## News
+
 ```{r}
 tlsUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1966436?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(tlsUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -425,6 +472,7 @@ flextable(tlsNews)
 ```
 
 ## Aggregate
+
 ```{r}
 tlsUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1966436?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=true&includeSources=false&api-version=v1")
 res <- GET(tlsUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -433,6 +481,7 @@ flextable(tlsData)
 ```
 
 # Dengue Cases
+
 ```{r}
 dengueUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/55?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991", "&startDate=2023-01-01", "&isAggregated=true&api-version=v1")
 res <- GET(dengueUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -441,6 +490,7 @@ flextable(dengueData)
 ```
 
 # Malaria Cases
+
 ```{r}
 malariaUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/141?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991", "&startDate=2023-01-01", "&isAggregated=true&api-version=v1")
 res <- GET(malariaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -449,6 +499,7 @@ flextable(malariaData)
 ```
 
 # Measles Cases
+
 ```{r}
 measlesUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/10?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991", "&startdate=2023-01-01", endDate, "&isAggregated=true&api-version=v1")
 res <- GET(measlesUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -457,6 +508,7 @@ flextable(measlesData)
 ```
 
 # Rabies Cases
+
 ```{r}
 rabiesUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/43?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991", "&startDate=2023-01-01", endDate, "&isAggregated=true&api-version=v1")
 res <- GET(rabiesUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -465,10 +517,10 @@ flextable(rabiesData)
 ```
 
 # Diphtheria
+
 ```{r}
 diphtheriaUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/4?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991", "&startDate=2023-01-01", endDate, "&isAggregated=true&api-version=v1")
 res <- GET(diphtheriaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
 diphtheriaData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
 flextable(diphtheriaData)
 ```
-
