@@ -9,3 +9,4 @@ data_asean <- data |>
   filter(location %in% c("Malaysia", "Philippines", "Singapore", "Thailand", "Vietnam"))
 
 ggplot(data |> filter(location == "World"), aes(x = date, y = newCaseMA)) + geom_line()
+
