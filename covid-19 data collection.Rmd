@@ -31,10 +31,10 @@ data <- read_csv("WHO-COVID-19-global-data.csv") |>
 #tail(data)
 View(data)
 ```
+
 ```{r}
 data |> filter(Country_code == "SG", Date_reported < '2023-01-01') |> count(sum = sum(New_cases))
 ```
-
 
 ```{r plot}
 plot <- ggplot(reportData) + 
@@ -58,21 +58,25 @@ dev.off()
 ```{r weekly data}
 weeklyData <- data |> filter(Date_reported >= "2022-12-25") |> 
   mutate(week = epiweek(Date_reported)) |> group_by(Country, week) |> 
-  summarise(weekly_cases = sum(New_cases), weekly_death = sum(New_deaths)) |> 
+  summarise(weekly_cases = sum(New_cases),
+            weekly_death = sum(New_deaths)) |> 
   mutate(date = ymd("2022-12-25") + weeks(week)) |> 
   filter(week != 52)
-weeklyDeath <- weeklyData |> group_by(week) |> summarise(death = sum(weekly_death)) |> 
+weeklyDeath <- weeklyData |> group_by(week) |> 
+  summarise(death = sum(weekly_death)) |> 
   mutate(date = ymd("2022-12-25") + weeks(week)) |> filter(week != 52)
 ```
 
 ```{r weekly plot}
-plot <- ggplot(weeklyData) +
-  geom_area(aes(date, weekly_cases, fill = Country)) +
-  geom_line(data = weeklyDeath, aes(date, death*200, colour = "Number of Death"),
-            linetype = "solid", linewidth = 1.2) +
+plot <- ggplot() +
+  geom_area(data = weeklyData, aes(x = date, y = weekly_cases, fill = Country)) + 
+  geom_line(data = weeklyDeath, aes(date, death, colour = "Number of Death"), linetype = "solid", linewidth = 1.2)
+
+
++
   scale_y_continuous(sec.axis = sec_axis(~ . / 200, name = "No. of Death"), name = "Weekly Cases") +
   scale_x_date(breaks = "1 month", labels = date_format("%b-%Y"),
-               limits = as.Date(c('2023-01-01','2023-07-13')), name = element_blank()) +
+               limits = as.Date(c('2023-01-01','2023-09-28')), name = element_blank()) +
   scale_colour_manual("", breaks = c("Number of Death"), values = "black") +
   theme(legend.title = element_blank()) +
   theme_hc()
@@ -98,7 +102,8 @@ vacc <- read_csv(url(link)) |>
 flextable(vacc)
 ```
 
-# COVID-19 from Bluedot
+# Indicator-based Surveillance from Bluedot 
+
 ```{r}
 covUrl <- "https://developer.bluedot.global/casecounts/indicator-based/?diseaseIds=200&locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2023-09-07&endDate=2023-09-14&api-version=v1"
 res <- GET(covUrl, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
@@ -108,10 +113,16 @@ View(covData)
 ```
 
 # COVID-19 from OWID
+
 ```{r}
 link <- "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/latest/owid-covid-latest.csv"
 download.file(link, "owid-covid-latest.csv")
 owid_data <- read_csv("owid-covid-latest.csv") |> filter(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"))
 View(data)
+```
+
+# COVID-19 News
+```{r}
+
 ```
 

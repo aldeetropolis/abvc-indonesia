@@ -1,0 +1,5 @@
+"name" "rankId" "rankName" "acquisitionModeId" "acquisitionModeLabel" "acquisitionModeDescription" "vectorId" "vectorName" "modalityId" "modalityName" "acquiredFrom"
+1 1 "Common" 15 "Mosquitoes via bite" "Acquisition of disease through the bite from an infected mosquito" 4 "Mosquito-borne" 10 "Bite" "mosquitos"
+2 3 "Rare" 3 "Humans via sexual route" "Acquisition of disease through contact with bodily fluids from an infected human, such as blood, semen, pre-seminal fluid, rectal fluids, vaginal fluid, or other fluids transmitted during sexual activity" 1 "Human-to-human" 3 "Sexual" "humans"
+3 3 "Rare" 6 "Humans via vertical transmission" "Acquisition of disease from an infected mother to child during pregnancy, delivery, or breastfeeding" 1 "Human-to-human" 6 "Vertical Transmission" "humans"
+4 3 "Rare" 7 "Humans via bloodborne route" "Acquisition of disease through blood transfusions, organ transplants, or blood from an infected human into open sores or mucous membranes" 1 "Human-to-human" 7 "Bloodborne" "humans""
