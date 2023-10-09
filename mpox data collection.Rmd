@@ -27,10 +27,25 @@ world_data <- data |> filter(iso_code == "OWID_WRL", date >= "2023-01-01") |> mu
 ## Mpox World Plot
 
 ```{r world, echo=FALSE}
-ggplot(data = world_data, aes(x = date, y = new_cases_ma)) + geom_line()
+mpox_world_plot <- ggplot(data = world_data, aes(x = date, y = new_cases_ma)) + 
+  geom_line(color = "blue") + 
+  labs(x = element_blank(), y = "Number of Cases") +
+  scale_y_continuous("Number of Cases",
+                     breaks = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100),
+                     minor_breaks = NULL) +
+  scale_x_date(minor_breaks = NULL, date_breaks = "month", date_labels = "%b") +
+  theme_linedraw()
+mpox_world_plot
 ```
 
-# Mpox cases in the ASEAN Region (Jan. 1 to 4 Oct, 2023)
+```{r}
+png("mpox world 5 october 2023.jpeg", units="px", width=4000, height=2250, res=300)
+mpox_world_plot
+dev.off()
+```
+
+
+# Mpox cases in the ASEAN Region (Jan. 1 to 5 Oct, 2023)
 ```{r}
 asean_data <- data |> filter(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"), date >= "2023-01-01")
 asean_data |> 
@@ -75,7 +90,10 @@ data |> filter(date >= "2023-01-01", !grepl("OWID", iso_code)) |>
 
 # Mpox cases per region
 ```{r}
-region_data <- read_csv("mpox cases by country as of 26 September 2023.csv") |> filter(date >= "2023-01-01") |> group_by(who_region) |> 
+region_data <- read_csv("mpox cases by country as of 26 September 2023.csv") |> filter(date >= "2023-01-01") |> 
+  mutate(region = if_else(iso3 %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"), "ASEAN",
+                          if_else(who_region %in% c("South-East Asia Region", "Western Pacific Region"), "Asia Pacific", who_region))) |> 
+  group_by(region) |> 
   summarise(cum_cases = sum(new_confirmed_cases), cum_death = sum(new_deaths))
 region_data
 ```
