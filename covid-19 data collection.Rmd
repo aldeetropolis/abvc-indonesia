@@ -70,13 +70,10 @@ weeklyDeath <- weeklyData |> group_by(week) |>
 ```{r weekly plot}
 plot <- ggplot() +
   geom_area(data = weeklyData, aes(x = date, y = weekly_cases, fill = Country)) + 
-  geom_line(data = weeklyDeath, aes(date, death, colour = "Number of Death"), linetype = "solid", linewidth = 1.2)
-
-
-+
+  geom_line(data = weeklyDeath, aes(date, death*200, colour = "Number of Death"), linetype = "solid", linewidth = 1.2) +
   scale_y_continuous(sec.axis = sec_axis(~ . / 200, name = "No. of Death"), name = "Weekly Cases") +
   scale_x_date(breaks = "1 month", labels = date_format("%b-%Y"),
-               limits = as.Date(c('2023-01-01','2023-09-28')), name = element_blank()) +
+               limits = as.Date(c('2023-01-01','2023-10-12')), name = element_blank()) +
   scale_colour_manual("", breaks = c("Number of Death"), values = "black") +
   theme(legend.title = element_blank()) +
   theme_hc()
@@ -84,7 +81,7 @@ plot
 ```
 
 ```{r export}
-png("weekly curve COVID-19 ASEAN 14 September 2023 area.png", units="px", width=3400, height=2250, res=300)
+png("weekly curve COVID-19 ASEAN 12 October 2023 area.png", units="px", width=3400, height=2250, res=300)
 plot
 dev.off()
 ```
