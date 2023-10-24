@@ -90,7 +90,7 @@ data |> filter(date >= "2023-01-01", !grepl("OWID", iso_code)) |>
 
 # Mpox cases per region
 ```{r}
-region_data <- read_csv("mpox cases by country as of 26 September 2023.csv") |> filter(date >= "2023-01-01") |> 
+region_data <- read_csv("mpox cases by country as of 30 September 2023.csv") |> filter(date >= "2023-01-01") |> 
   mutate(region = if_else(iso3 %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"), "ASEAN",
                           if_else(who_region %in% c("South-East Asia Region", "Western Pacific Region"), "Asia Pacific", who_region))) |> 
   group_by(region) |> 

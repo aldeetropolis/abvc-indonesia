@@ -29,7 +29,7 @@ data <- read_csv("WHO-COVID-19-global-data.csv") |>
          Country = replace(Country, Country == "Viet Nam", "Vietnam"),
          Country = replace(Country, Country == "Brunei Darussalam", "Brunei DS"))
 #tail(data)
-View(data)
+#View(data)
 ```
 
 ```{r}
@@ -61,7 +61,7 @@ weeklyData <- data |> filter(Date_reported >= "2022-12-25") |>
   summarise(weekly_cases = sum(New_cases),
             weekly_death = sum(New_deaths)) |> 
   mutate(date = ymd("2022-12-25") + weeks(week)) |> 
-  filter(week != 52)
+  filter(week != 52, weekly_cases >= 1)
 weeklyDeath <- weeklyData |> group_by(week) |> 
   summarise(death = sum(weekly_death)) |> 
   mutate(date = ymd("2022-12-25") + weeks(week)) |> filter(week != 52)
@@ -81,7 +81,7 @@ plot
 ```
 
 ```{r export}
-png("weekly curve COVID-19 ASEAN 12 October 2023 area.png", units="px", width=3400, height=2250, res=300)
+png("weekly curve COVID-19 ASEAN 19 October 2023 area.png", units="px", width=3000, height=2250, res=300)
 plot
 dev.off()
 ```
@@ -120,6 +120,16 @@ View(data)
 
 # COVID-19 News
 ```{r}
-
+url <- "https://developer.bluedot.global/casecounts/diseases/200?locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2023-10-13&endDate=2023-10-19&isAggregated=false&includeSources=true&api-version=v1"
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+length_df <- length(res$data)
+covNews <- data.frame()
+for(i in 1:length_df){
+  disease_name <- pluck(res, "data", i, "diseaseName")
+  vec <- enframe(pluck(res, "data", i, "sources")) |> unnest_wider(value)
+  vec$name <- disease_name
+  covNews <- rbind(covNews, vec)
+}
+flextable(covNews)
 ```
 

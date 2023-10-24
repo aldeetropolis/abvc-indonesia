@@ -5,12 +5,40 @@ library(tidyverse)
 # Historical Air Travel Volumes
 url <- "https://developer.bluedot.global/travel/air/?originLocationIds=1269750&destinationLocationIds=1643084&originAggregationType=4&destinationAggregationType=4&startDate=2019-01-01&endDate=2019-12-31&api-version=v1"
 res <- content(GET(url, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")))
+data <- enframe(pluck(res, "data")) |> unnest_wider(value)
 
 # Historical Air Travel Volumes by Port of Exit, Entry, and Last Stop
-https://developer.bluedot.global/travel/air/international[?originLocationIds][&destinationLocationIds][&originAggregationType][&destinationAggregationType][&startDate][&endDate][&includePortOfExit][&includeLastStopBeforeEntry][&includePortOfEntry][&includeCsv]&api-version=v1
+url <- "https://developer.bluedot.global/travel/air/international[?originLocationIds][&destinationLocationIds][&originAggregationType][&destinationAggregationType][&startDate][&endDate][&includePortOfExit][&includeLastStopBeforeEntry][&includePortOfEntry][&includeCsv]&api-version=v1"
 
 # Direct Flight Seating from Airtport to Airport
 https://developer.bluedot.global/travel-forecasted/air-direct-capacity/airport/origin/{originLocationId}/destination/{destinationLocationId}[?startDate][&endDate][&includeRouteDetails][&includeCsv]&api-version=v1
 
 # Direct Flight Seating from Country to Country
 https://developer.bluedot.global/travel-forecasted/air-direct-capacity/country/origin/{originLocationId}/destination/{destinationLocationId}[?startDate][&endDate][&includeCsv]&api-version=v1
+
+# Passenger Volume Forecast (Country to Country)
+## Country to Country Passenger Volume Forecast
+url <- "https://developer.bluedot.global/travel-forecasted/air-passenger-volume/country/origin/1605651/destination/1643084?api-version=v1"
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
+data <- enframe(pluck(res, "data")) |> unnest_wider(value)
+
+## Country to/from Global Passenger Volume Forecast
+url <- "https://developer.bluedot.global/travel-forecasted/air-passenger-volume/country/?destinationLocationIds=1643084&api-version=v1"
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
+data <- enframe(pluck(res, "data")) |> unnest_wider(value)
+
+# Passenger Volume Forecasts
+passenger_vol_forecast <- function(origin, destination, startDate, endDate){
+  url <- paste0("https://developer.bluedot.global/travel-forecasted/air-passenger-volume/?originLocationIds=", origin, "&destinationLocationIds=", destination, "&startDate=", startDate, "&endDate=", endDate, "&api-version=v1")
+  res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
+  enframe(pluck(res, "data")) |> unnest_wider(value)
+}
+
+data <- passenger_vol_forecast(1733045, 1643084, "2023-09", "2023-10")
+
+data1 <- data |> group_by(destinationLocationName, originLocationName) |> summarise(n = sum(forecastedPassengerVolume))
+
+# Airport to Airport Passenger Volume Forecast
+url <- "https://developer.bluedot.global/travel-forecasted/air-passenger-volume/airport/origin/1605651/destination/1643084&api-version=v1"
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
+data <- enframe(pluck(res, "data")) |> unnest_wider(value)
