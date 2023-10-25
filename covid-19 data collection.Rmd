@@ -90,8 +90,13 @@ dev.off()
 
 ```{r data}
 link <- "https://covid19.who.int/who-data/vaccination-data.csv"
+<<<<<<< HEAD
 download.file(link, "vaccination-data.csv")
 vacc <- read_csv("vaccination-data.csv") |> 
+=======
+#download.file(link, "vaccination-data.csv")
+vacc <- read_csv(vaccination-data.csv) |> 
+>>>>>>> 512b599 (Small changes)
   filter(ISO3 %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS")) |> 
   mutate(COUNTRY = replace(COUNTRY, COUNTRY == "Lao People's Democratic Republic", "Lao PDR"),
          COUNTRY = replace(COUNTRY, COUNTRY == "Viet Nam", "Vietnam")) |> 
