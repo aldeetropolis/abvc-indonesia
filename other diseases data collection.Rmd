@@ -239,6 +239,15 @@ sgpData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseN
 flextable(sgpData)
 ```
 
+## Singapore Weekly Bulletin Provided by Bluedot
+```{r}
+sgpUrl <- paste0("https://developer.bluedot.global/casecounts/indicator-based/?locationIds=1880251&startDate=", startDate, "&sourceOrgNames=Ministry%20of%20Health%20Singapore&api-version=v1")
+res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+sgpData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, reportingPeriodStartDate, reportingPeriodEndDate, reportingPeriodEndEpiWeek, totalReportedCases, totalConfirmedCases, totalDeaths, sourceDatasetName, sourceDatasetURL, sourceDatasetCitation, sourceOrgName)
+flextable(sgpData)
+```
+
+
 # Thailand
 
 ```{r}

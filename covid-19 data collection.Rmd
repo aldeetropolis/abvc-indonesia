@@ -81,7 +81,7 @@ plot
 ```
 
 ```{r export}
-png("weekly curve COVID-19 ASEAN 19 October 2023 area.png", units="px", width=3000, height=2250, res=300)
+png("weekly curve COVID-19 ASEAN 24 October 2023 area.png", units="px", width=3000, height=2250, res=300)
 plot
 dev.off()
 ```
@@ -90,8 +90,8 @@ dev.off()
 
 ```{r data}
 link <- "https://covid19.who.int/who-data/vaccination-data.csv"
-#download.file(link, "vaccination-data.csv")
-vacc <- read_csv(url(link)) |> 
+download.file(link, "vaccination-data.csv")
+vacc <- read_csv("vaccination-data.csv") |> 
   filter(ISO3 %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS")) |> 
   mutate(COUNTRY = replace(COUNTRY, COUNTRY == "Lao People's Democratic Republic", "Lao PDR"),
          COUNTRY = replace(COUNTRY, COUNTRY == "Viet Nam", "Vietnam")) |> 
@@ -102,11 +102,13 @@ flextable(vacc)
 # Indicator-based Surveillance from Bluedot 
 
 ```{r}
-covUrl <- "https://developer.bluedot.global/casecounts/indicator-based/?diseaseIds=200&locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2023-09-07&endDate=2023-09-14&api-version=v1"
+startDate <- "2023-10-01"
+endDate <- "2023-10-21"
+covUrl <- paste0("https://developer.bluedot.global/casecounts/indicator-based/?diseaseIds=200&locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=", startDate, "&endDate=", endDate, "&api-version=v1")
 res <- GET(covUrl, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
 covData <- enframe(pluck(res, "data")) |> unnest_wider(value)
 View(covData)
-#flextable(covData)
+flextable(covData)
 ```
 
 # COVID-19 from OWID
