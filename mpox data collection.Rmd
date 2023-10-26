@@ -13,6 +13,8 @@ library(tidyverse)
 library(lubridate)
 library(flextable)
 library(zoo)
+library(jsonlite)
+library(httr)
 ```
 
 # Data import
@@ -100,12 +102,9 @@ region_data
 
 # Indicator-based Surveillance from Bluedot
 ```{r}
-startDate <- "2023-10-01"
-endDate <- "2023-10-21"
-covUrl <- paste0("https://developer.bluedot.global/casecounts/indicator-based/?diseaseIds=64&locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=", startDate, "&endDate=", endDate, "&api-version=v1")
+covUrl <- paste0("https://developer.bluedot.global/casecounts/indicator-based/?diseaseIds=64&locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2023-01-01&api-version=v1")
 res <- GET(covUrl, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
-covData <- enframe(pluck(res, "data")) |> unnest_wider(value)
-View(covData)
-flextable(covData)
+covData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> filter(countryISO == "SGP", sourceOrgName == "OWID")
+covData |> summarise(n = sum(totalReportedCases))
 ```
 
