@@ -81,7 +81,7 @@ plot
 ```
 
 ```{r export}
-png("weekly curve COVID-19 ASEAN 24 October 2023 area.png", units="px", width=3000, height=2250, res=300)
+png("weekly curve COVID-19 ASEAN 9 November 2023 area.png", units="px", width=3000, height=2250, res=300)
 plot
 dev.off()
 ```
