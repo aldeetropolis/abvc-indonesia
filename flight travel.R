@@ -2,10 +2,24 @@ library(httr)
 library(jsonlite)
 library(tidyverse)
 
-# Historical Air Travel Volumes
-url <- "https://developer.bluedot.global/travel/air/?originLocationIds=1269750&destinationLocationIds=1643084&originAggregationType=4&destinationAggregationType=4&startDate=2019-01-01&endDate=2019-12-31&api-version=v1"
+ams <- "1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822"
+
+# Population Air Travel Historical Volumes
+## Historical Air Travel Volumes
+url <- paste0("https://developer.bluedot.global/travel/air/?destinationLocationIds=", 
+              ams, 
+              "&originAggregationType=6&destinationAggregatioType=6&startDate=2019-01&endDate=2019-02&api-version=v1")
 res <- content(GET(url, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")))
 data <- enframe(pluck(res, "data")) |> unnest_wider(value)
+id <- data |> select(originCountryId, originCountryName) |> distinct()
+df <- data |> group_by(destinationCountryName, originCountryName) |> 
+  summarise(n = sum(nonstopPassengerVolume)) |> filter(n > 0) |> ungroup()
+df_unique <- df |> select(originCountryName) |> distinct(originCountryName) |> 
+  filter(!(originCountryName %in% c("Brunei", "Cambodia", "Indonesia", "Laos", "Malaysia", "Myanmar", "Philippines", "Singapore", "Thailand", "Vietnam"))) |> 
+  left_join(id, by = "originCountryName")
+
+library(writexl)
+write_xlsx(df_unique, "list of disease and country priority.xlsx")
 
 # Historical Air Travel Volumes by Port of Exit, Entry, and Last Stop
 url <- "https://developer.bluedot.global/travel/air/international[?originLocationIds][&destinationLocationIds][&originAggregationType][&destinationAggregationType][&startDate][&endDate][&includePortOfExit][&includeLastStopBeforeEntry][&includePortOfEntry][&includeCsv]&api-version=v1"
@@ -14,7 +28,7 @@ url <- "https://developer.bluedot.global/travel/air/international[?originLocatio
 https://developer.bluedot.global/travel-forecasted/air-direct-capacity/airport/origin/{originLocationId}/destination/{destinationLocationId}[?startDate][&endDate][&includeRouteDetails][&includeCsv]&api-version=v1
 
 # Direct Flight Seating from Country to Country
-https://developer.bluedot.global/travel-forecasted/air-direct-capacity/country/origin/{originLocationId}/destination/{destinationLocationId}[?startDate][&endDate][&includeCsv]&api-version=v1
+"https://developer.bluedot.global/travel-forecasted/air-direct-capacity/country/origin/{originLocationId}/destination/{destinationLocationId}[?startDate][&endDate][&includeCsv]&api-version=v1"
 
 # Passenger Volume Forecast (Country to Country)
 ## Country to Country Passenger Volume Forecast

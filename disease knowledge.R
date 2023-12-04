@@ -3,6 +3,14 @@ library(jsonlite)
 library(tidyverse)
 library(writexl)
 
+# Bluedot Disease Codes
+url <- "https://developer.bluedot.global/lookups/diseases?api-version=v1"
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+human_disease_codes <- enframe(pluck(res, "data")) |> unnest_wider(value) |> filter(isAnimalDisease == "FALSE")
+animal_disease_codes <- enframe(pluck(res, "data")) |> unnest_wider(value) |> filter(isAnimalDisease == "TRUE")
+write_xlsx(human_disease_codes, "Human Disease Codes Bluedot.xlsx")
+write_xlsx(animal_disease_codes, "Animal Disease Codes Bluedot.xlsx")
+
 # Nipah
 url <- "https://developer.bluedot.global/diseases/?diseaseIds=41&includeDiseaseOverview=true&api-version=v1"
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
