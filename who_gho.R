@@ -7,8 +7,9 @@ library(ggthemes)
 library(ggrepel)
 library(writexl)
 
+# Starter
 dimUrl <- "https://ghoapi.azureedge.net/api/Dimension"
-res <- GET(url) |> content()
+res <- GET(dimUrl) |> content()
 dim <- enframe(pluck(res, "value")) |> unnest_wider(value)
 
 countryUrl <- "https://ghoapi.azureedge.net/api/DIMENSION/COUNTRY/DimensionValues"
@@ -23,7 +24,7 @@ timeperiod <- enframe(pluck(res, "value")) |> unnest_wider(value)
 
 indUrl <- "https://ghoapi.azureedge.net/api/Indicator"
 res <- GET(indUrl) |> content()
-indicator <- enframe(pluck(res, "value")) |> unnest_wider(value) |> filter(grepl("Hepatitis", `IndicatorName`))
+indicator <- enframe(pluck(res, "value")) |> unnest_wider(value)
 
 # Diphtheria - number of reported cases
 diphUrl <- "https://ghoapi.azureedge.net/api/WHS3_41"

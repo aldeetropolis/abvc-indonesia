@@ -53,11 +53,15 @@ data <- read_csv("owid-covid-data.csv") |>
 # Weekly graph
 
 ```{r weekly data}
-weeklyData <- data |> filter(Date_reported >= "2022-12-25") |> 
+weeklyData1 <- data |> filter(Date_reported >= "2022-12-25") |> 
   mutate(week = epiweek(Date_reported)) |> group_by(Country, week) |> 
-  summarise(weekly_cases = sum(New_cases)) |> 
+  summarise(weekly_cases = sum(New_cases)) |> filter(weekly_cases >= 1)
+weeklyData2 <- weeklyData1 |> pivot_wider(id_cols = week, names_from = Country, values_from = weekly_cases) |> 
+  arrange(week) |> 
+  fill("Brunei DS":"Vietnam", .direction = "downup")
+weeklyData <- weeklyData2 |> pivot_longer(cols = c("Brunei DS":"Vietnam"), names_to = "Country", values_to = "weekly_cases") |> arrange(Country) |> 
   mutate(date = ymd("2022-12-25") + weeks(week)) |> 
-  filter(week != 52, weekly_cases >= 1)
+  filter(week != 52, weekly_cases >= 0) |> arrange(Country)
 weeklyDeath <- data |> filter(Date_reported >= "2022-12-25") |> 
   mutate(week = epiweek(Date_reported)) |> group_by(week) |> 
   summarise(weekly_deaths = sum(New_deaths)) |> 
@@ -72,7 +76,7 @@ plot <- ggplot() +
   geom_line(data = weeklyDeath, aes(date, weekly_deaths*200, colour = "Number of Death"), linetype = "solid", linewidth = 1.2) +
   scale_y_continuous(sec.axis = sec_axis(~ . / 200, name = "No. of Death"), name = "Weekly Cases") +
   scale_x_date(breaks = "1 month", labels = date_format("%b-%Y"),
-               limits = as.Date(c('2022-12-25','2023-11-01')), name = element_blank()) +
+               limits = as.Date(c('2022-12-25','2023-12-16')), name = element_blank()) +
   scale_colour_manual("", breaks = c("Number of Death"), values = "black") +
   theme(legend.title = element_blank()) +
   theme_hc()
@@ -80,24 +84,24 @@ plot
 ```
 
 ```{r export}
-png("weekly curve COVID-19 ASEAN 28 November 2023 area.png", units="px", width=3000, height=2250, res=300)
+png("weekly curve COVID-19 ASEAN 19 December 2023 area.png", units="px", width=3000, height=2250, res=300)
 plot
 dev.off()
 ```
 
 # 7MA Graph
 ```{r}
-maData <- data |> filter(date >= "2023-01-01") |> 
-  group_by(location) |> 
-  mutate(ma_new_cases = round(rollmean(new_cases, k = 7, fill = 0), 2)) |> 
+maData <- data |> filter(Date_reported >= "2023-01-01") |> 
+  group_by(Country) |> 
+  mutate(ma_new_cases = round(rollmean(New_cases, k = 7, fill = 0), 2)) |> 
   ungroup()
-maDeath <- data |> filter(date >= "2023-01-01") |> group_by(date) |> 
-  summarise(new_deaths = sum(new_deaths)) |> 
+maDeath <- data |> filter(Date_reported >= "2023-01-01") |> group_by(Date_reported) |> 
+  summarise(new_deaths = sum(New_deaths)) |> 
   mutate(ma_new_deaths = round(rollmean(new_deaths, k = 7, fill = 0), 2))
 ```
 
 ```{r}
-ggplot(data = maData, aes(date, ma_new_cases)) + geom_area(aes(fill = location)) + 
+ggplot(data = maData, aes(date, ma_new_cases)) + geom_area(aes(fill = Country)) + 
   geom_line()
 ```
 
