@@ -19,18 +19,28 @@ library(lubridate)
 ```{r}
 owid_url <- "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv"
 download.file(owid_url, "owid-covid-data.csv")
-data <- read_csv("owid-covid-data.csv") |> 
-  filter(iso_code == "MYS") |> select(iso_code:date, icu_patients, icu_patients_per_million, hosp_patients, hosp_patients_per_million, weekly_hosp_admissions, weekly_hosp_admissions_per_million)
+data_my <- read_csv("owid-covid-data.csv") |> 
+  filter(iso_code == "MYS") |>
+  select(iso_code:date, icu_patients, icu_patients_per_million, hosp_patients, hosp_patients_per_million, weekly_hosp_admissions, weekly_hosp_admissions_per_million) |> 
+  pivot_longer(cols = icu_patients:weekly_hosp_admissions, names_to = "variable", values_to = "value")
+data_my_vacc <- read_csv("owid-covid-data.csv") |> 
+  filter(iso_code == "MYS") |>
+  select(iso_code:date, people_vaccinated, people_fully_vaccinated, total_boosters, people_vaccinated_per_hundred, people_fully_vaccinated_per_hundred, total_boosters_per_hundred) |> 
+  pivot_longer(cols = people_vaccinated:total_boosters_per_hundred, names_to = "variable", values_to = "value")
 ```
 
 ## Plot from OWID data
 ```{r}
-ggplot(filter(data, indicator == "Daily ICU occupancy"), aes(date, value)) + geom_line(aes(color = entity))
+ggplot(filter(data_my, variable %in% c("hosp_patients", "icu_patients")), aes(date, value)) + 
+  geom_line(aes(color = variable)) +
+  geom_line(data = filter(data_my_vacc, variable == "people_fully_vaccinated_per_hundred"), aes(date, value*200)) +
+  scale_y_continuous(sec.axis = sec_axis(~ . / 200, name = "Fully vaccinated per hundred population"), name = "Daily hospitalisations")
 ```
 
 ## Singapore Hospitalization and ICUD admission data
-```{r cars}
-
+```{r}
+data_sg <- read_csv("NumberofnewCOVID19hospitalisationsICUadmissionsbyEpiweek.csv")
+data_sg_vacc <- read_csv("ProgressofCOVID19vaccination.csv")
 ```
 
 ## Including Plots
