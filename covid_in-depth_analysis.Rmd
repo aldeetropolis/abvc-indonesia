@@ -1,0 +1,44 @@
+---
+title: "COVID-19 In-depth Analysis"
+author: "Aldilas AN"
+date: "2023-12-21"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(lubridate)
+```
+
+# Gathering Data
+## OWID Data (Malaysia)
+```{r}
+owid_url <- "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv"
+download.file(owid_url, "owid-covid-data.csv")
+data <- read_csv("owid-covid-data.csv") |> 
+  filter(iso_code == "MYS") |> select(iso_code:date, icu_patients, icu_patients_per_million, hosp_patients, hosp_patients_per_million, weekly_hosp_admissions, weekly_hosp_admissions_per_million)
+```
+
+## Plot from OWID data
+```{r}
+ggplot(filter(data, indicator == "Daily ICU occupancy"), aes(date, value)) + geom_line(aes(color = entity))
+```
+
+## Singapore Hospitalization and ICUD admission data
+```{r cars}
+
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
