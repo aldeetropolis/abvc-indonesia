@@ -238,7 +238,9 @@ flextable(sgpData)
 ```
 
 ## Singapore Weekly Bulletin Provided by Bluedot
+
 ### Cumulative 2023
+
 ```{r}
 sgpUrl <- "https://developer.bluedot.global/casecounts/indicator-based/?locationIds=1880251&startDate=2023-01-01&sourceOrgNames=Ministry%20of%20Health%20Singapore&api-version=v1"
 res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -252,6 +254,7 @@ flextable(sgpData)
 ```
 
 ### Weekly
+
 ```{r}
 sgpUrl <- "https://developer.bluedot.global/casecounts/indicator-based/?locationIds=1880251&startDate=2023-11-26&sourceOrgNames=Ministry%20of%20Health%20Singapore&api-version=v1"
 res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -263,7 +266,9 @@ flextable(sgpData)
 ```
 
 # Thailand
+
 ## News
+
 ```{r}
 thaUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1605651?startDate=", startDate, "&endDate=", endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(thaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -359,7 +364,7 @@ for(i in 1:length_df){
 flextable(korNews)
 ```
 
-  ## Aggregate
+\## Aggregate
 
 ```{r}
 korUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1835841?startDate=", startDate, "&endDate=", endDate, "&isAggregated=true&includeSources=false&api-version=v1")
@@ -558,6 +563,7 @@ flextable(legionellosisData)
 ```
 
 # Nipah
+
 ```{r}
 nipahUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/41?locationIds=1210997,1269750", "&startdate=2023-09-01", "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(nipahUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -586,6 +592,7 @@ url <- "https://developer.bluedot.global/daas/articles/infectious-diseases/?star
 ```
 
 # Ethiopia
+
 ## News
 
 ```{r}
@@ -612,6 +619,7 @@ flextable(data)
 ```
 
 # Zika
+
 ```{r}
 zikaUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/88?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991&startDate=2023-09-01&isAggregated=true&api-version=v1")
 res <- GET(zikaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -620,6 +628,7 @@ flextable(zikaData)
 ```
 
 # Chikungunya Cases
+
 ```{r}
 chikungunyaUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/53?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991&startDate=2023-01-01&isAggregated=true&api-version=v1")
 res <- GET(chikungunyaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -628,6 +637,7 @@ flextable(chikungunyaData)
 ```
 
 # Pertussis
+
 ```{r}
 zikaUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/13?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991&startDate=2023-11-01&isAggregated=true&api-version=v1")
 res <- GET(zikaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -636,6 +646,7 @@ flextable(zikaData)
 ```
 
 # TB
+
 ```{r}
 zikaUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/7?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991&startDate=2023-11-01&isAggregated=true&api-version=v1")
 res <- GET(zikaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
