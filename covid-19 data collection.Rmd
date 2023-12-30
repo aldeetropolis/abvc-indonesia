@@ -19,12 +19,12 @@ library(jsonlite)
 library(zoo)
 ```
 
-# COVID-19 daily case data from WHO
+# Data Import
 
-```{r data, paged.print=TRUE}
-link <- "https://covid19.who.int/WHO-COVID-19-global-data.csv"
+```{r WHO data, paged.print=TRUE}
+#link <- "https://covid19.who.int/WHO-COVID-19-global-data.csv"
 download.file(link, "WHO-COVID-19-global-data.csv")
-data <- read_csv("WHO-COVID-19-global-data.csv") |> 
+who_data <- read_csv("WHO-COVID-19-global-data.csv") |> 
   filter(Country_code %in% c("BN", "KH", "ID", "LA", "PH", "TH", "VN", "MM", "SG", "MY")) |> 
   mutate(Country = replace(Country, Country == "Lao People's Democratic Republic", "Lao PDR"),
          Country = replace(Country, Country == "Brunei Darussalam", "Brunei DS"),
@@ -33,27 +33,20 @@ data <- read_csv("WHO-COVID-19-global-data.csv") |>
 #View(data)
 ```
 
-```{r}
-data |> group_by(Country) |> filter(Date_reported <= "2022-12-31") |> 
-  summarise(cum_death_2023 = sum(New_deaths))
-```
-
-
-# COVID-19 data from OWID
-```{r data, paged.print=TRUE}
+```{r OWID data, paged.print=TRUE}
 link <- "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv"
 download.file(link, "owid-covid-data.csv")
-data <- read_csv("owid-covid-data.csv") |> 
+owid_data <- read_csv("owid-covid-data.csv") |> 
   filter(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS")) |> 
   mutate(location = replace(location, location == "Laos", "Lao PDR"),
          location = replace(location, location == "Brunei", "Brunei DS")) |> 
   select(iso_code, location, date, new_cases, new_deaths)
 ```
 
-# Weekly graph
+# Graph
 
-```{r weekly data}
-weeklyData1 <- data |> filter(Date_reported >= "2022-12-25") |> 
+```{r transform weekly from who data}
+weeklyData1 <- who_data |> filter(Date_reported >= "2022-12-25") |> 
   mutate(week = epiweek(Date_reported)) |> group_by(Country, week) |> 
   summarise(weekly_cases = sum(New_cases)) |> filter(weekly_cases >= 1)
 weeklyData2 <- weeklyData1 |> pivot_wider(id_cols = week, names_from = Country, values_from = weekly_cases) |> 
@@ -61,12 +54,11 @@ weeklyData2 <- weeklyData1 |> pivot_wider(id_cols = week, names_from = Country, 
   fill("Brunei DS":"Vietnam", .direction = "downup")
 weeklyData <- weeklyData2 |> pivot_longer(cols = c("Brunei DS":"Vietnam"), names_to = "Country", values_to = "weekly_cases") |> arrange(Country) |> 
   mutate(date = ymd("2022-12-25") + weeks(week)) |> 
-  filter(week != 52, weekly_cases >= 0) |> arrange(Country)
-weeklyDeath <- data |> filter(Date_reported >= "2022-12-25") |> 
+  filter(weekly_cases >= 0) |> arrange(Country)
+weeklyDeath <- who_data |> filter(Date_reported >= "2022-12-25") |> 
   mutate(week = epiweek(Date_reported)) |> group_by(week) |> 
   summarise(weekly_deaths = sum(New_deaths)) |> 
-  mutate(date = ymd("2022-12-25") + weeks(week)) |> 
-  filter(week != 52, week != 47)
+  mutate(date = ymd("2022-12-25") + weeks(week))
 #weeklyDeath[5,2] <- 84
 ```
 
@@ -83,8 +75,21 @@ plot <- ggplot() +
 plot
 ```
 
+```{r weekly plot}
+plot <- ggplot() +
+  geom_area(data = weeklyData, aes(x = date, y = weekly_cases, fill = Country)) + 
+  geom_line(data = weeklyDeath, aes(date, weekly_deaths*100, colour = "Number of Death"), linetype = "solid", linewidth = 1.2) +
+  scale_y_continuous(sec.axis = sec_axis(~ . / 100, name = "No. of Death"), name = "Weekly Cases") +
+  scale_x_date(breaks = "1 month", labels = date_format("%b-%Y"),
+               limits = as.Date(c('2023-07-01','2023-12-24')), name = element_blank()) +
+  scale_colour_manual("", breaks = c("Number of Death"), values = "black") +
+  theme(legend.title = element_blank()) +
+  theme_hc() + ylim(0, 25000)
+plot
+```
+
 ```{r export}
-png("weekly curve COVID-19 ASEAN 19 December 2023 area.png", units="px", width=3000, height=2250, res=300)
+png("weekly curve COVID-19 ASEAN 26 December 2023 area.png", units="px", width=3000, height=2250, res=300)
 plot
 dev.off()
 ```

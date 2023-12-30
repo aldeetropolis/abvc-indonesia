@@ -16,8 +16,8 @@ library(flextable)
 ```
 
 ```{r}
-startDate <- "2023-12-03"
-endDate <- "2023-12-09"
+startDate <- "2023-12-17"
+endDate <- "2023-12-23"
 ```
 
 # Indonesia
@@ -215,7 +215,7 @@ flextable(phlData)
 ## News
 
 ```{r}
-sgpUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1880251?diseaseIds=", diseaseId, startDate, endDate, "&isAggregated=false&includeSources=true&api-version=v1")
+sgpUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1880251?startDate=", startDate, "&endDate", endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
 length_df <- length(res$data)
 sgpNews <- data.frame()
@@ -256,7 +256,7 @@ flextable(sgpData)
 ### Weekly
 
 ```{r}
-sgpUrl <- "https://developer.bluedot.global/casecounts/indicator-based/?locationIds=1880251&startDate=2023-11-26&sourceOrgNames=Ministry%20of%20Health%20Singapore&api-version=v1"
+sgpUrl <- "https://developer.bluedot.global/casecounts/indicator-based/?locationIds=1880251&startDate=2023-12-03&sourceOrgNames=Ministry%20of%20Health%20Singapore&api-version=v1"
 res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
 sgpData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> 
   select(reportingPeriodStartEpiWeek, diseaseName, 
@@ -364,7 +364,7 @@ for(i in 1:length_df){
 flextable(korNews)
 ```
 
-\## Aggregate
+## Aggregate
 
 ```{r}
 korUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1835841?startDate=", startDate, "&endDate=", endDate, "&isAggregated=true&includeSources=false&api-version=v1")
@@ -520,7 +520,7 @@ flextable(dengueData)
 # Malaria Cases
 
 ```{r}
-malariaUrl <- "https://developer.bluedot.global/casecounts/diseases/141?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991&startDate=2023-01-01&isAggregated=true&api-version=v1"
+malariaUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/141?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991&startDate=2023-01-01&endDate=", endDate, "&isAggregated=true&api-version=v1")
 res <- GET(malariaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
 malariaData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
 flextable(malariaData)
@@ -538,7 +538,7 @@ flextable(measlesData)
 # Rabies Cases
 
 ```{r}
-rabiesUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/43?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991&startDate=2023-01-01&endDate=", endDate, "&isAggregated=true&api-version=v1")
+rabiesUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/43?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991&startDate=2023-01-01&endDate=", "2023-12-10", "&isAggregated=true&api-version=v1")
 res <- GET(rabiesUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
 rabiesData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
 flextable(rabiesData)
@@ -630,7 +630,7 @@ flextable(zikaData)
 # Chikungunya Cases
 
 ```{r}
-chikungunyaUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/53?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991&startDate=2023-01-01&isAggregated=true&api-version=v1")
+chikungunyaUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/53?locationIds=1820814,%201831722,%201643084,%201655842,%201733045,%201327865,%201694008,%201880251,%201605651,%201562822,%201861060,%201835841,%201814991&startDate=2023-01-01&endDate=", endDate, "&isAggregated=true&api-version=v1")
 res <- GET(chikungunyaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
 chikungunyaData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
 flextable(chikungunyaData)
