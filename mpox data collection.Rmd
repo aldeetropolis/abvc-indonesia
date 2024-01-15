@@ -54,7 +54,7 @@ region_data <- data |> filter(grepl("OWID", iso_code), date >= "2023-01-01", loc
   mutate(region = if_else(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"), "ASEAN", if_else(location %in% c("North America", "South America"), "AMERICA", location))) |> 
   group_by(region) |> summarise(new_cases = sum(new_cases), new_deaths = sum(new_deaths))
 region_data
-View(region_data)
+# View(region_data)
 ```
 
 
@@ -105,7 +105,7 @@ data |> filter(date >= "2023-01-01", !grepl("OWID", iso_code)) |>
 # WHO Data
 ## WHO Data Import
 ```{r}
-who_data <- read_csv("mpox cases by country as of 31 October 2023.csv") |> filter(date >= "2023-01-01")
+who_data <- read_csv("~/Downloads/mpox cases by country as of 30 November 2023.csv") |> filter(date >= "2023-01-01")
 ```
 
 ## Mpox cases per region
@@ -127,7 +127,9 @@ asean_data
 ```
 
 ```{r}
-
+who_data |> filter(date >= "2023-01-01") |> 
+  group_by(country) |> summarise(cum_cases = sum(new_confirmed_cases), cum_death = sum(new_deaths)) |> mutate(cfr = round((cum_death/cum_cases)*100,2)) |> 
+  arrange(-cum_cases) |> top_n(5, cum_cases)
 ```
 
 
@@ -163,7 +165,7 @@ twData |> summarise(n = sum(totalReportedCases))
 ebsUrl <- "https://developer.bluedot.global/casecounts/diseases/64?locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2023-01-01&api-version=v1"
 res <- GET(ebsUrl, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")) |> content()
 ebsData <- enframe(pluck(res, "data")) |> unnest_wider(value)
-ebsData |> group_by(locationName) |> summarise(n = sum(totalReportedCases))
+ebsData |> group_by(locationName) |> summarise(cases = sum(totalReportedCases), deaths = sum(totalDeaths))
 ```
 
 ```{r}
@@ -179,3 +181,8 @@ for(i in 1:length_df){
 }
 flextable(vnmNews)
 ```
+
+```{r}
+
+```
+

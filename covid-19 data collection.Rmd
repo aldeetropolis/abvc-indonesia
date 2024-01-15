@@ -17,14 +17,15 @@ library(flextable)
 library(httr)
 library(jsonlite)
 library(zoo)
+library(highcharter)
 ```
 
 # Data Import
 
 ```{r WHO data, paged.print=TRUE}
 #link <- "https://covid19.who.int/WHO-COVID-19-global-data.csv"
-download.file(link, "WHO-COVID-19-global-data.csv")
-who_data <- read_csv("WHO-COVID-19-global-data.csv") |> 
+#download.file(link, "WHO-COVID-19-global-data.csv")
+who_data <- read_csv("~/Downloads/WHO-COVID-19-global-data.csv") |> 
   filter(Country_code %in% c("BN", "KH", "ID", "LA", "PH", "TH", "VN", "MM", "SG", "MY")) |> 
   mutate(Country = replace(Country, Country == "Lao People's Democratic Republic", "Lao PDR"),
          Country = replace(Country, Country == "Brunei Darussalam", "Brunei DS"),
@@ -39,33 +40,36 @@ download.file(link, "owid-covid-data.csv")
 owid_data <- read_csv("owid-covid-data.csv") |> 
   filter(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS")) |> 
   mutate(location = replace(location, location == "Laos", "Lao PDR"),
-         location = replace(location, location == "Brunei", "Brunei DS")) |> 
-  select(iso_code, location, date, new_cases, new_deaths)
+         location = replace(location, location == "Brunei", "Brunei DS"))
 ```
+
+```{r}
+owid_data$week <- floor_date(owid_data$date, "week")
+```
+
+```{r}
+replacement_data <- who_data |> filter(Country_code == "PH", Date_reported >= "2022-12-25" & Date_reported <= "2023-08-20") |> 
+  select(Country_code, Date_reported, Cumulative_cases) |> mutate(Cumulative_cases = Cumulative_cases-65079,
+                                                                  New_cases = c(Cumulative_cases[1], diff(Cumulative_cases))) |> 
+  slice(2:(n() - 1))
+```
+
+```{r}
+replaced_who_data <- merge(who_data, replacement_data, by = c("Country_code", "Date_reported", "Cumulative_cases"))
+```
+
+# Recent updates
+```{r}
+last_data <- df_who |> group_by(Country) |> filter(row_number()==n())
+```
+
 
 # Graph
 
-```{r transform weekly from who data}
-weeklyData1 <- who_data |> filter(Date_reported >= "2022-12-25") |> 
-  mutate(week = epiweek(Date_reported)) |> group_by(Country, week) |> 
-  summarise(weekly_cases = sum(New_cases)) |> filter(weekly_cases >= 1)
-weeklyData2 <- weeklyData1 |> pivot_wider(id_cols = week, names_from = Country, values_from = weekly_cases) |> 
-  arrange(week) |> 
-  fill("Brunei DS":"Vietnam", .direction = "downup")
-weeklyData <- weeklyData2 |> pivot_longer(cols = c("Brunei DS":"Vietnam"), names_to = "Country", values_to = "weekly_cases") |> arrange(Country) |> 
-  mutate(date = ymd("2022-12-25") + weeks(week)) |> 
-  filter(weekly_cases >= 0) |> arrange(Country)
-weeklyDeath <- who_data |> filter(Date_reported >= "2022-12-25") |> 
-  mutate(week = epiweek(Date_reported)) |> group_by(week) |> 
-  summarise(weekly_deaths = sum(New_deaths)) |> 
-  mutate(date = ymd("2022-12-25") + weeks(week))
-#weeklyDeath[5,2] <- 84
-```
-
-```{r weekly plot}
+```{r weekly plot 2023 ggplot2}
 plot <- ggplot() +
-  geom_area(data = weeklyData, aes(x = date, y = weekly_cases, fill = Country)) + 
-  geom_line(data = weeklyDeath, aes(date, weekly_deaths*200, colour = "Number of Death"), linetype = "solid", linewidth = 1.2) +
+  geom_area(data = who_data, aes(x = Date_reported, y = New_cases, fill = Country)) + 
+  geom_line(data = who_data, aes(Date_reported, New_deaths*100, colour = "Number of Death"), linetype = "solid", linewidth = 1.2) +
   scale_y_continuous(sec.axis = sec_axis(~ . / 200, name = "No. of Death"), name = "Weekly Cases") +
   scale_x_date(breaks = "1 month", labels = date_format("%b-%Y"),
                limits = as.Date(c('2022-12-25','2023-12-16')), name = element_blank()) +
@@ -75,7 +79,23 @@ plot <- ggplot() +
 plot
 ```
 
-```{r weekly plot}
+```{r weekly plot 2023 ggplot2 from OWID data}
+owid_weekly_data <- owid_data |> filter(date >= "2023-01-01") |> group_by(location, week) |> 
+  summarise(cases = sum(new_cases, na.rm = TRUE), deaths = sum(new_deaths, na.rm = TRUE)) |> ungroup()
+owid_weekly_deaths <- owid_weekly_data |> group_by(week) |> summarise(deaths = sum(deaths)) |> ungroup()
+plot <- ggplot() +
+  geom_area(data = owid_weekly_data, aes(x = week, y = cases, fill = location)) + 
+  geom_line(data = owid_weekly_deaths, aes(week, deaths*200, colour = "Number of Death"), linetype = "solid", linewidth = 1.2) +
+  scale_y_continuous(sec.axis = sec_axis(~ . / 200, name = "No. of Death"), name = "Weekly Cases") +
+  scale_x_date(breaks = "1 month", labels = date_format("%b-%Y"),
+               limits = as.Date(c('2022-12-25','2023-12-31')), name = element_blank()) +
+  scale_colour_manual("", breaks = c("Number of Death"), values = "black") +
+  theme(legend.title = element_blank()) +
+  theme_hc()
+plot
+```
+
+```{r weekly plot 6 mo}
 plot <- ggplot() +
   geom_area(data = weeklyData, aes(x = date, y = weekly_cases, fill = Country)) + 
   geom_line(data = weeklyDeath, aes(date, weekly_deaths*100, colour = "Number of Death"), linetype = "solid", linewidth = 1.2) +
@@ -94,29 +114,34 @@ plot
 dev.off()
 ```
 
-# 7MA Graph
-```{r}
-maData <- data |> filter(Date_reported >= "2023-01-01") |> 
-  group_by(Country) |> 
-  mutate(ma_new_cases = round(rollmean(New_cases, k = 7, fill = 0), 2)) |> 
-  ungroup()
-maDeath <- data |> filter(Date_reported >= "2023-01-01") |> group_by(Date_reported) |> 
-  summarise(new_deaths = sum(New_deaths)) |> 
-  mutate(ma_new_deaths = round(rollmean(new_deaths, k = 7, fill = 0), 2))
+```{r weekly plot 2023 highcharter}
+# df_who <- who_data |> filter(Date_reported >= "2023-01-01")
+# df_who$New_cases[df_who$Date_reported == "2023-08-20" & df_who$Country_code == "PH"] <- 0
+# df_who_death <- df_who |> group_by(Date_reported) |> summarise(deaths = sum(New_deaths))
+plot <- highchart() |> 
+  hc_yAxis_multiples(
+    list(title = list(text = "No. of Cases")),
+    list(showLastLabel = FALSE, opposite = TRUE, title = list(text = "No. of Deaths"))) |> 
+  hc_add_series(data = owid_weekly_data, type = "area", hcaes(x = week, y = cases, group = location)) |> 
+  hc_add_series(data = owid_weekly_deaths, type = "line", hcaes(x = week, y = deaths), yAxis = 1, name = "No. of Deaths", color = "black") |> 
+  hc_xAxis(dateTimeLabelFormats = list(month = "%b '%y"), 
+           type = "datetime") |> 
+  hc_plotOptions(series = list(marker = list(enabled = FALSE), stacking = "normal"))
+plot
 ```
 
-```{r}
-ggplot(data = maData, aes(date, ma_new_cases)) + geom_area(aes(fill = Country)) + 
-  geom_line()
+```{r export hchart object}
+htmlwidgets::saveWidget(widget = plot, file = "plot.html")
+webshot::webshot(url = "plot.html", file = "plot.png", delay = 3) |> webshot::resize("4000x2250")
 ```
 
 
 # COVID-19 vaccine data
 
-```{r data}
+```{r who data}
 #link <- "https://covid19.who.int/who-data/vaccination-data.csv"
 #download.file(link, "vaccination-data.csv")
-vacc <- read_csv("vaccination-data.csv") |> 
+vacc <- read_csv("~/Downloads/vaccination-data.csv") |> 
   filter(ISO3 %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS")) |>  # nolint # nolint: line_length_linter.
   mutate(COUNTRY = replace(COUNTRY, COUNTRY == "Lao People's Democratic Republic", "Lao PDR"),
          COUNTRY = replace(COUNTRY, COUNTRY == "Viet Nam", "Vietnam")) |> 
@@ -124,23 +149,15 @@ vacc <- read_csv("vaccination-data.csv") |>
 flextable(vacc)
 ```
 
-```{r}
-url <- "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/vaccinations/vaccinations.csv"
-download.file(url, "vaccinations.csv")
-data <- read_csv("vaccinations.csv") |> filter(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"))
+```{r owid}
+vacc_data <- owid_data |> filter(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"),
+                                 date >= "2023-01-01") |> 
+  select(iso_code, location, date, total_vaccinations:new_people_vaccinated_smoothed_per_hundred)
 ```
 
 ```{r}
 data |> group_by(location) |> filter(row_number()==1)
 ```
-
-
-```{r}
-ggplot(data, aes(date, daily_vaccinations)) + geom_line(aes(color = iso_code))
-```
-
-
-
 
 # Indicator-based Surveillance from Bluedot 
 

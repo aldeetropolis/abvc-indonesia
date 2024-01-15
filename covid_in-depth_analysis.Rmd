@@ -89,7 +89,7 @@ data_gisaid_lineage$line <- if_else(grepl("XBB.1.16", data_gisaid_lineage$lineag
 ```
 
 # ASEAN Region
-```{r variant}
+```{r variant bar}
 asean_countries <- c("Brunei", "Cambodia", "Indonesia", "Laos", "Malaysia", "Myanmar", "Philippines", "Singapore", "Thailand", "Vietnam")
 asean_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country %in% asean_countries) |> 
   mutate(month = floor_date(as.Date(date), 'month')) |> 
@@ -103,7 +103,7 @@ ggplot(asean_variant, aes(month, pct, fill = variant)) +
   theme_prism() + theme(legend.position = "bottom") + xlab(element_blank()) +
   ylab("Submission Rate (%)")
 ```
-```{r lineage}
+```{r lineage bar}
 asean_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country %in% asean_countries) |> 
   mutate(month = floor_date(as.Date(date), 'month')) |> 
   arrange(date) |> 
@@ -118,15 +118,26 @@ asean_lineage_plot <- ggplot(asean_lineage, aes(month, pct, fill = line)) +
 asean_lineage_plot
 ```
 
+```{r lineage area}
+asean_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country %in% asean_countries) |> 
+  mutate(month = floor_date(as.Date(date), 'month')) |> 
+  arrange(date) |> 
+  group_by(month, line) |> 
+  summarise(n = sum(count)) |> 
+  mutate(pct = n / sum(n)*100)
+asean_lineage_plot <- ggplot(asean_lineage, aes(month, pct, fill = line)) +
+  geom_area() +
+  scale_x_date(date_breaks = "1 month", date_labels = "%b-%y") +
+  theme_prism() + theme(legend.position = "bottom") + xlab(element_blank()) +
+  ylab("Submission Rate (%)") + ggtitle("Trend of COVID-19 Variants in ASEAN Region as of December 2023")
+asean_lineage_plot
+```
+
 ```{r export as jpeg}
 jpeg("asean variant bar plot Dec23.jpeg", units="px", width=4000, height=2250, res=300)
 asean_lineage_plot
 dev.off()
 ```
-```{r hospitalised}
-
-```
-
 # Brunei
 ```{r total Case and death}
 data_brn <- data_owid |> filter(iso_code == "BRN", date >= "2023-01-01") |> 
@@ -288,6 +299,7 @@ idn <- highchart() |>
            type = "datetime")
 idn
 ```
+
 ```{r variant}
 idn_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Indonesia") |> 
   mutate(month = floor_date(as.Date(date), 'month')) |> 
@@ -300,6 +312,7 @@ ggplot(idn_variant, aes(month, pct, fill = variant)) +
   scale_x_date(date_breaks = "1 month", date_labels = "%B") +
   theme_prism() + theme(legend.position = "bottom")
 ```
+
 ```{r lineage}
 idn_variant_may_aug <- filter(idn_variant, month > "2023-05-01" & month < "2023-09-01") |> 
   mutate(line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> select(-variant)
@@ -358,6 +371,7 @@ highchart() |>
   hc_add_series(data = data_lao, type = "line", hcaes(x = date, y = total_cases), name = "Total Cases") |> 
   hc_add_series(data = data_lao, type = "line", hcaes(x = date, y = total_deaths), yAxis = 1, name = "Total Deaths")
 ```
+
 ```{r variant}
 lao_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Laos") |> 
   mutate(month = floor_date(as.Date(date), 'month'),
@@ -389,6 +403,7 @@ ggplot(lao_lineage, aes(month, pct, fill = line)) +
   theme_prism() + theme(legend.position = "bottom") + ggtitle("Lao PDR") +
   ylab("Submission Rate (%)") + xlab(element_blank())
 ```
+
 ```{r export as jpeg}
 jpeg("Lao PDR variant bar plot Dec23.jpeg", units="px", width=4000, height=2250, res=300)
 lao_variant_plot
@@ -427,6 +442,7 @@ highchart() |>
   hc_add_series(data = data_my, type = "line", hcaes(x = date, y = total_cases), name = "Total Cases") |> 
   hc_add_series(data = data_my, type = "line", hcaes(x = date, y = total_deaths), yAxis = 1, name = "Total Deaths")
 ```
+
 ```{r variant}
 mys_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Malaysia") |> 
   mutate(month = floor_date(as.Date(date), 'month')) |> 
@@ -487,6 +503,7 @@ webshot(url = "mys_hosp_lineage.html",
         delay=3) # delay will ensure that the whole plot appears in the image
 if(dev.cur() > 1) dev.off()
 ```
+
 # Myanmar
 ```{r variant}
 mmr_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Myanmar") |> 
@@ -596,6 +613,7 @@ highchart() |>
   hc_add_series(data = data_sg, type = "line", hcaes(x = date, y = total_cases), name = "Total Cases") |> 
   hc_add_series(data = data_sg, type = "line", hcaes(x = date, y = total_deaths), yAxis = 1, name = "Total Deaths")
 ```
+
 ```{r variant}
 sgp_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Singapore") |> 
   mutate(month = floor_date(as.Date(date), 'month')) |> 
