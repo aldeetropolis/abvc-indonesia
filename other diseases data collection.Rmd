@@ -16,11 +16,11 @@ library(flextable)
 ```
 
 ```{r setting date}
-startDate <- "2023-12-24"
-endDate <- "2023-12-30"
+startDate <- "2024-01-07"
+endDate <- "2024-01-13"
 ```
 
-# Aggregate data from bluedot among AMS
+# Aggregate Event-based Data from Bluedot among AMS
 ```{r}
 ams <- c(1880251, 1605651, 1694008, 1820814, 1733045, 1643084, 1831722, 1327865, 1655842,1562822)
 ams_event_aggr <- data.frame()
@@ -30,11 +30,12 @@ for (i in ams){
   data <- enframe(pluck(res, "data")) |> unnest_wider(value)
   ams_event_aggr <- rbind(ams_event_aggr, data)
 }
+flextable(ams_event_aggr)
 ```
 
 
 # Singapore
-## Indicator-based Surveillance data from Bluedot
+## Indicator-based Surveillance Data from Bluedot
 ```{r cumulative}
 sgpUrl <- "https://developer.bluedot.global/casecounts/indicator-based/?locationIds=1880251&startDate=2023-01-01&sourceOrgNames=Ministry%20of%20Health%20Singapore&api-version=v1"
 res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -67,11 +68,12 @@ for (i in country){
   data <- enframe(pluck(res, "data")) |> unnest_wider(value)
   other_event_aggr <- rbind(other_event_aggr, data)
 }
+flextable(other_event_aggr)
 ```
 
 # Collect routine MMWR diseases from Bluedot
 ```{r}
-disease <- c(55, 141, 10, 43, 4)
+disease <- c(55, 141, 10, 43, 4, 53)
 disease_aggr <- data.frame()
 for (i in disease){
   url <- paste0("https://developer.bluedot.global/casecounts/diseases/", i, "?locationIds=1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822&startDate=2023-01-01&endDate=", endDate, "&isAggregated=true&api-version=v1")
@@ -79,6 +81,7 @@ for (i in disease){
   data <- enframe(pluck(res, "data")) |> unnest_wider(value)
   disease_aggr <- rbind(disease_aggr, data)
 }
+flextable(disease_aggr)
 ```
 
 # Function to get data from Bluedot based on diseases among AMS

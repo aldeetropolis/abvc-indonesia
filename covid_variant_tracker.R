@@ -63,14 +63,19 @@ asean_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country %in
   arrange(date) |> 
   group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n))
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> arrange(month)
+asean_variant$line[asean_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
+asean_variant$line[asean_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
 colourCount = length(unique(asean_variant$variant))
 getPalette = colorRampPalette(brewer.pal(9, "Set1"))
-ggplot(asean_variant, aes(month, pct, fill = variant)) +
+asean_variant_plot <- ggplot(asean_variant, aes(month, pct, fill = line)) +
   geom_bar(stat = "identity", position = "stack") +
   scale_x_date(date_breaks = "1 month", date_labels = "%B") +
   theme_prism() + theme(legend.position = "bottom") + xlab(element_blank()) +
   ylab("Value (%)")
+asean_variant_plot
 
 ## Lineage (bar chart)
 asean_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country %in% asean_countries) |> 
@@ -89,15 +94,22 @@ asean_lineage_plot <- ggplot(asean_lineage, aes(month, pct, fill = line)) +
 asean_lineage_plot
 
 ## Export
-jpeg("ASEAN COVID-19 Variant Trend 2023.jpeg", units="px", width=4000, height=2250, res=300)
+jpeg("ASEAN COVID-19 Variant Trend 2023-2024.jpeg", units="px", width=4000, height=2250, res=300)
 asean_lineage_plot
 dev.off()
 
 ## Lineage (area highchart)
-asean_lineage |> hchart('column', hcaes(month, pct, group = line)) |> 
+asean_variant_barplot <- asean_variant |> hchart('column', hcaes(month, pct, group = line)) |> 
   hc_xAxis(dateTimeLabelFormats = list(month = "%b '%y"), 
            type = "datetime") |> 
-  hc_plotOptions(series = list(marker = list(enabled = FALSE), stacking = "normal"))
+  hc_plotOptions(series = list(marker = list(enabled = FALSE), stacking = "normal",
+                               pointWidth = 100))
+
+asean_variant_areaplot <- asean_variant |> hchart('area', hcaes(month, pct, group = line)) |> 
+  hc_xAxis(dateTimeLabelFormats = list(month = "%b '%y"), 
+           type = "datetime") |> 
+  hc_plotOptions(area = list(stacking = "percent", marker = list(enabled = FALSE)))
+htmlwidgets::saveWidget(widget = asean_variant_areaplot, file = "ASEAN Variant Chart 2023-2024.html")
 
 # Brunei
 brn_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Brunei") |> 
@@ -105,15 +117,18 @@ brn_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "B
   arrange(date) |> 
   group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
-brn_variant_march_may <- filter(brn_variant, month > "2023-02-01" & month < "2023-06-01") |> 
-  mutate(line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> select(-variant)
-brn_variant_march_may$line[brn_variant_march_may$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
-brn_variant_march_may$line[brn_variant_march_may$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
-brn_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Brunei") |> 
-  mutate(month = floor_date(as.Date(date), 'month')) |> arrange(date) |> group_by(month, line) |> 
-  summarise(n = sum(count)) |> mutate(pct = n / sum(n)*100) |> 
-  full_join(brn_variant_march_may) |> arrange(month)
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> 
+  arrange(month)
+brn_variant$line[brn_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
+brn_variant$line[brn_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
+# brn_variant_march_may$line[brn_variant_march_may$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
+# brn_variant_march_may$line[brn_variant_march_may$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
+# brn_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Brunei") |> 
+#   mutate(month = floor_date(as.Date(date), 'month')) |> arrange(date) |> group_by(month, line) |> 
+#   summarise(n = sum(count)) |> mutate(pct = n / sum(n)*100) |> 
+#   full_join(brn_variant_march_may) |> arrange(month)
 # brn_lineage_plot <- ggplot(brn_lineage, aes(month, pct, fill = line)) +
 #   geom_bar(stat = "identity", position = "stack") +
 #   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
@@ -142,14 +157,15 @@ idn_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "I
   arrange(date) |> 
   group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
-idn_variant_may_aug <- filter(idn_variant, month > "2023-05-01" & month < "2023-09-01") |> 
-  mutate(line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> select(-variant)
-idn_variant_may_aug$line[idn_variant_may_aug$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
-idn_variant_may_aug$line[idn_variant_may_aug$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
-idn_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Indonesia") |> 
-  mutate(month = floor_date(as.Date(date), 'month')) |> arrange(date) |> group_by(month, line) |> summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100) |> full_join(idn_variant_may_aug) |> arrange(month)
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> 
+  arrange(month)
+idn_variant$line[idn_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
+idn_variant$line[idn_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
+# idn_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Indonesia") |> 
+#   mutate(month = floor_date(as.Date(date), 'month')) |> arrange(date) |> group_by(month, line) |> summarise(n = sum(count)) |> 
+#   mutate(pct = n / sum(n)*100) |> full_join(idn_variant_may_aug) |> arrange(month)
 # idn_lineage_plot <- ggplot(idn_lineage, aes(month, pct, fill = line)) +
 #   geom_bar(stat = "identity", position = "stack") +
 #   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
@@ -178,13 +194,18 @@ mys_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "M
   arrange(date) |> 
   group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
-mys_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Malaysia") |> 
-  mutate(month = floor_date(as.Date(date), 'month')) |> 
-  arrange(date) |> 
-  group_by(month, line) |> 
-  summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> 
+  arrange(month)
+mys_variant$line[mys_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
+mys_variant$line[mys_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
+# mys_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Malaysia") |> 
+#   mutate(month = floor_date(as.Date(date), 'month')) |> 
+#   arrange(date) |> 
+#   group_by(month, line) |> 
+#   summarise(n = sum(count)) |> 
+#   mutate(pct = n / sum(n)*100)
 # mys_lineage_plot <- ggplot(mys_lineage, aes(month, pct, fill = line)) +
 #   geom_bar(stat = "identity", position = "stack") +
 #   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
@@ -213,18 +234,19 @@ phl_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "P
   arrange(date) |> 
   group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
-phl_variant_july <- filter(phl_variant, month == "2023-07-01") |> 
-  mutate(line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> select(-variant)
-phl_variant_july$line[phl_variant_july$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
-phl_variant_july$line[phl_variant_july$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
-phl_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Philippines") |> 
-  mutate(month = floor_date(as.Date(date), 'month')) |> 
-  arrange(date) |> 
-  group_by(month, line) |> 
-  summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100) |> 
-  full_join(phl_variant_july) |> arrange(month)
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> 
+  arrange(month)
+phl_variant$line[phl_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
+phl_variant$line[phl_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
+# phl_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Philippines") |> 
+#   mutate(month = floor_date(as.Date(date), 'month')) |> 
+#   arrange(date) |> 
+#   group_by(month, line) |> 
+#   summarise(n = sum(count)) |> 
+#   mutate(pct = n / sum(n)*100) |> 
+#   full_join(phl_variant_july) |> arrange(month)
 # phl_lineage_plot <- ggplot(phl_lineage, aes(month, pct, fill = line)) +
 #   geom_bar(stat = "identity", position = "stack") +
 #   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
@@ -286,23 +308,23 @@ vnm_variant$line[vnm_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB
 #   xlab(element_blank())
 
 # Plot
-brn_lineage$country <- "Brunei DS"
+brn_variant$country <- "Brunei DS"
 khm_variant$country <- "Cambodia"
-idn_lineage$country <- "Indonesia"
+idn_variant$country <- "Indonesia"
 lao_variant$country <- "Lao PDR"
-mys_lineage$country <- "Malaysia"
+mys_variant$country <- "Malaysia"
 mmr_variant$country <- "Myanmar"
-phl_lineage$country <- "Philippines"
+phl_variant$country <- "Philippines"
 sgp_lineage$country <- "Singapore"
 tha_lineage$country <- "Thailand"
 vnm_variant$country <- "Vietnam"
-data_ams_variant <- rbind(brn_lineage,
+data_ams_variant <- rbind(brn_variant,
                           khm_variant,
-                          idn_lineage,
+                          idn_variant,
                           lao_variant,
-                          mys_lineage,
+                          mys_variant,
                           mmr_variant,
-                          phl_lineage,
+                          phl_variant,
                           sgp_lineage,
                           tha_lineage,
                           vnm_variant)
@@ -328,7 +350,7 @@ dev.off()
 # 
 # writexl::write_xlsx(data_ams_variant_pivot, "ASEAN Variant 8Jan24.xlsx")
 
-brn_pie <- brn_lineage |> filter(month == "2023-10-01")
+brn_pie <- brn_variant |> filter(month == "2023-10-01")
 khm_pie <- khm_variant |> filter(month == "2023-12-01")
 idn_pie <- idn_lineage |> filter(month == "2023-12-01")
 lao_pie <- lao_variant |> filter(month == "2023-11-01")

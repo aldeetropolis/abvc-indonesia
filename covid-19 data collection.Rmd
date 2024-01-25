@@ -42,11 +42,6 @@ owid_data <- read_csv("owid-covid-data.csv") |>
   mutate(location = replace(location, location == "Laos", "Lao PDR"),
          location = replace(location, location == "Brunei", "Brunei DS"))
 ```
-
-```{r}
-owid_data$week <- floor_date(owid_data$date, "week")
-```
-
 ```{r}
 replacement_data <- who_data |> filter(Country_code == "PH", Date_reported >= "2022-12-25" & Date_reported <= "2023-08-20") |> 
   select(Country_code, Date_reported, Cumulative_cases) |> mutate(Cumulative_cases = Cumulative_cases-65079,
@@ -59,10 +54,18 @@ replaced_who_data <- merge(who_data, replacement_data, by = c("Country_code", "D
 ```
 
 # Recent updates
-```{r}
-last_data <- df_who |> group_by(Country) |> filter(row_number()==n())
+```{r confirmed cases and deaths}
+owid_data |> group_by(location) |> 
+  select(location, date, total_cases, total_deaths) |> 
+  drop_na(total_cases) |> 
+  slice(tail(row_number(), 1))
 ```
-
+```{r vaccines}
+owid_data |> group_by(location) |> 
+  select(location, date, people_vaccinated, people_vaccinated_per_hundred, people_fully_vaccinated, people_fully_vaccinated_per_hundred, total_boosters, total_boosters_per_hundred) |> 
+  drop_na(people_vaccinated) |> 
+  slice(tail(row_number(), 1))
+```
 
 # Graph
 
@@ -80,9 +83,11 @@ plot
 ```
 
 ```{r weekly plot 2023 ggplot2 from OWID data}
+owid_data$week <- floor_date(owid_data$date, "week")
 owid_weekly_data <- owid_data |> filter(date >= "2023-01-01") |> group_by(location, week) |> 
   summarise(cases = sum(new_cases, na.rm = TRUE), deaths = sum(new_deaths, na.rm = TRUE)) |> ungroup()
-owid_weekly_deaths <- owid_weekly_data |> group_by(week) |> summarise(deaths = sum(deaths)) |> ungroup()
+owid_weekly_deaths <- owid_weekly_data |> group_by(week) |> 
+  summarise(deaths = sum(deaths)) |> ungroup() |> filter(week <= "2024-01-14")
 plot <- ggplot() +
   geom_area(data = owid_weekly_data, aes(x = week, y = cases, fill = location)) + 
   geom_line(data = owid_weekly_deaths, aes(week, deaths*200, colour = "Number of Death"), linetype = "solid", linewidth = 1.2) +
@@ -131,8 +136,10 @@ plot
 ```
 
 ```{r export hchart object}
+#library(webshot2)
 htmlwidgets::saveWidget(widget = plot, file = "plot.html")
-webshot::webshot(url = "plot.html", file = "plot.png", delay = 3) |> webshot::resize("4000x2250")
+# webshot(url = "plot.html", file = "plot.jpeg", delay = 10,
+#                  vheight = 2500, vwidth = 4000, zoom = 5)
 ```
 
 

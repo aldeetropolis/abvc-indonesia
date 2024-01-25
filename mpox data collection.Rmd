@@ -59,7 +59,7 @@ region_data
 
 
 
-## Mpox cases in the ASEAN Region (Jan. 1 to 5 Oct, 2023)
+## Mpox cases in the ASEAN Region
 ```{r}
 asean_data <- data |> filter(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"), date >= "2023-01-01")
 asean_data |> 
@@ -169,17 +169,17 @@ ebsData |> group_by(locationName) |> summarise(cases = sum(totalReportedCases), 
 ```
 
 ```{r}
-ebsUrl <- paste0("https://developer.bluedot.global/casecounts/locations/1562822?startDate=", startDate, "&endDate=", endDate, "&isAggregated=false&includeSources=true&api-version=v1")
-res <- GET(vnmUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+ebsUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/64?startDate=2023-01-01&isAggregated=false&includeSources=true&api-version=v1")
+res <- GET(ebsUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
 length_df <- length(res$data)
-vnmNews <- data.frame()
+ebsNews <- data.frame()
 for(i in 1:length_df){
   disease_name <- pluck(res, "data", i, "diseaseName")
   vec <- enframe(pluck(res, "data", i, "sources")) |> unnest_wider(value)
   vec$name <- disease_name
-  vnmNews <- rbind(vnmNews, vec)
+  ebsNews <- rbind(ebsNews, vec)
 }
-flextable(vnmNews)
+flextable(ebsNews)
 ```
 
 ```{r}
