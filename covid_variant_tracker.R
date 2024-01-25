@@ -68,7 +68,7 @@ asean_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country %in
   select(-variant) |> arrange(month)
 asean_variant$line[asean_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
 asean_variant$line[asean_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
-colourCount = length(unique(asean_variant$variant))
+colourCount = length(unique(asean_variant$line))
 getPalette = colorRampPalette(brewer.pal(9, "Set1"))
 asean_variant_plot <- ggplot(asean_variant, aes(month, pct, fill = line)) +
   geom_bar(stat = "identity", position = "stack") +
@@ -77,25 +77,25 @@ asean_variant_plot <- ggplot(asean_variant, aes(month, pct, fill = line)) +
   ylab("Value (%)")
 asean_variant_plot
 
-## Lineage (bar chart)
-asean_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country %in% asean_countries) |> 
-  mutate(month = floor_date(as.Date(date), 'month')) |> 
-  arrange(date) |> 
-  group_by(month, line) |> 
-  summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
-colourCount = length(unique(asean_lineage$line))
-getPalette = colorRampPalette(brewer.pal(9, "Paired"))
-asean_lineage_plot <- ggplot(asean_lineage, aes(month, pct, fill = line)) +
-  geom_bar(stat = "identity", position = "stack") +
-  scale_x_date(date_breaks = "1 month", date_labels = "%b '%y") +
-  theme_prism() + theme(legend.position = "right") + xlab(element_blank()) +
-  ylab("Value (%)") + scale_fill_manual(values = getPalette(colourCount))
-asean_lineage_plot
+# ## Lineage (bar chart)
+# asean_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country %in% asean_countries) |> 
+#   mutate(month = floor_date(as.Date(date), 'month')) |> 
+#   arrange(date) |> 
+#   group_by(month, line) |> 
+#   summarise(n = sum(count)) |> 
+#   mutate(pct = n / sum(n)*100)
+# colourCount = length(unique(asean_lineage$line))
+# getPalette = colorRampPalette(brewer.pal(9, "Paired"))
+# asean_lineage_plot <- ggplot(asean_lineage, aes(month, pct, fill = line)) +
+#   geom_bar(stat = "identity", position = "stack") +
+#   scale_x_date(date_breaks = "1 month", date_labels = "%b '%y") +
+#   theme_prism() + theme(legend.position = "right") + xlab(element_blank()) +
+#   ylab("Value (%)") + scale_fill_manual(values = getPalette(colourCount))
+# asean_lineage_plot
 
 ## Export
 jpeg("ASEAN COVID-19 Variant Trend 2023-2024.jpeg", units="px", width=4000, height=2250, res=300)
-asean_lineage_plot
+asean_variant_plot
 dev.off()
 
 ## Lineage (area highchart)
