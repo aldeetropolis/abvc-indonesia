@@ -16,8 +16,8 @@ library(flextable)
 ```
 
 ```{r setting date}
-startDate <- "2024-01-07"
-endDate <- "2024-01-13"
+startDate <- "2024-01-21"
+endDate <- "2024-01-27"
 ```
 
 # Aggregate Event-based Data from Bluedot among AMS
