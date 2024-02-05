@@ -98,7 +98,7 @@ jpeg("ASEAN COVID-19 Variant Trend 2023-2024.jpeg", units="px", width=4000, heig
 asean_variant_plot
 dev.off()
 
-## Lineage (area highchart)
+## Variant (area highchart)
 asean_variant_barplot <- asean_variant |> hchart('column', hcaes(month, pct, group = line)) |> 
   hc_xAxis(dateTimeLabelFormats = list(month = "%b '%y"), 
            type = "datetime") |> 
@@ -137,12 +137,14 @@ brn_variant$line[brn_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB
 
 # Cambodia
 khm_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Cambodia") |> 
-  mutate(month = floor_date(as.Date(date), 'month'),
-         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  mutate(month = floor_date(as.Date(date), 'month')) |> 
   arrange(date) |> 
-  group_by(month, line) |> 
+  group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> 
+  arrange(month)
 khm_variant$line[khm_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
 khm_variant$line[khm_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
 # khm_variant_plot <- ggplot(khm_variant, aes(month, pct, fill = line)) +
@@ -174,12 +176,14 @@ idn_variant$line[idn_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB
 
 # Lao PDR
 lao_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Laos") |> 
-  mutate(month = floor_date(as.Date(date), 'month'),
-         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  mutate(month = floor_date(as.Date(date), 'month')) |> 
   arrange(date) |> 
-  group_by(month, line) |> 
+  group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> 
+  arrange(month)
 lao_variant$line[lao_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
 lao_variant$line[lao_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
 # lao_variant_plot <- ggplot(lao_variant, aes(month, pct, fill = line)) +
@@ -214,12 +218,14 @@ mys_variant$line[mys_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB
 
 # Myanmar
 mmr_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Myanmar") |> 
-  mutate(month = floor_date(as.Date(date), 'month'),
-         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  mutate(month = floor_date(as.Date(date), 'month')) |> 
   arrange(date) |> 
-  group_by(month, line) |> 
+  group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> 
+  arrange(month)
 mmr_variant$line[mmr_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
 mmr_variant$line[mmr_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
 # mmr_variant_plot <- ggplot(mmr_variant, aes(month, pct, fill = line)) +
@@ -259,13 +265,18 @@ sgp_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "S
   arrange(date) |> 
   group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n))
-sgp_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Singapore") |> 
-  mutate(month = floor_date(as.Date(date), 'month')) |> 
-  arrange(date) |> 
-  group_by(month, line) |> 
-  summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> 
+  arrange(month)
+sgp_variant$line[sgp_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
+sgp_variant$line[sgp_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
+# sgp_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Singapore") |> 
+#   mutate(month = floor_date(as.Date(date), 'month')) |> 
+#   arrange(date) |> 
+#   group_by(month, line) |> 
+#   summarise(n = sum(count)) |> 
+#   mutate(pct = n / sum(n)*100)
 # sgp_lineage_plot <- ggplot(sgp_lineage, aes(month, pct, fill = line)) +
 #   geom_bar(stat = "identity", position = "stack") +
 #   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
@@ -278,13 +289,18 @@ tha_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "T
   arrange(date) |> 
   group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n))
-tha_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Thailand") |> 
-  mutate(month = floor_date(as.Date(date), 'month')) |> 
-  arrange(date) |> 
-  group_by(month, line) |> 
-  summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> 
+  arrange(month)
+tha_variant$line[tha_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
+tha_variant$line[tha_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
+# tha_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Thailand") |> 
+#   mutate(month = floor_date(as.Date(date), 'month')) |> 
+#   arrange(date) |> 
+#   group_by(month, line) |> 
+#   summarise(n = sum(count)) |> 
+#   mutate(pct = n / sum(n)*100)
 # tha_lineage_plot <- ggplot(tha_lineage, aes(month, pct, fill = line)) +
 #   geom_bar(stat = "identity", position = "stack") +
 #   scale_x_date(date_breaks = "1 month", date_labels = "%b") +
@@ -293,12 +309,14 @@ tha_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "T
 
 # Vietnam
 vnm_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Vietnam") |> 
-  mutate(month = floor_date(as.Date(date), 'month'),
-         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  mutate(month = floor_date(as.Date(date), 'month')) |> 
   arrange(date) |> 
-  group_by(month, line) |> 
+  group_by(month, variant) |> 
   summarise(n = sum(count)) |> 
-  mutate(pct = n / sum(n)*100)
+  mutate(pct = n / sum(n)*100,
+         line = gsub(".*\\((.*)\\).*", "\\1", variant)) |> 
+  select(-variant) |> 
+  arrange(month)
 vnm_variant$line[vnm_variant$line == "B.1.1.529+BA.*"] <- "Omicron B.1.1.529+BA.*"
 vnm_variant$line[vnm_variant$line == "XBB+XBB.* excluding XBB.1.5, XBB.1.16, XBB.1.9.1, XBB.1.9.2, XBB.2.3"] <- "XBB"
 # vnm_variant_plot <- ggplot(vnm_variant, aes(month, pct, fill = line)) +
@@ -315,8 +333,8 @@ lao_variant$country <- "Lao PDR"
 mys_variant$country <- "Malaysia"
 mmr_variant$country <- "Myanmar"
 phl_variant$country <- "Philippines"
-sgp_lineage$country <- "Singapore"
-tha_lineage$country <- "Thailand"
+sgp_variant$country <- "Singapore"
+tha_variant$country <- "Thailand"
 vnm_variant$country <- "Vietnam"
 data_ams_variant <- rbind(brn_variant,
                           khm_variant,
@@ -325,8 +343,8 @@ data_ams_variant <- rbind(brn_variant,
                           mys_variant,
                           mmr_variant,
                           phl_variant,
-                          sgp_lineage,
-                          tha_lineage,
+                          sgp_variant,
+                          tha_variant,
                           vnm_variant)
 
 colourCount = length(unique(data_ams_variant$line))

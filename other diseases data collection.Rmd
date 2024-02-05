@@ -12,25 +12,26 @@ knitr::opts_chunk$set(echo = TRUE)
 library(httr)
 library(jsonlite)
 library(tidyverse)
-library(flextable)
+library(gt)
 ```
 
-```{r setting date}
+```{r setting date and default diseases}
 startDate <- "2024-01-21"
 endDate <- "2024-01-27"
+disease <- "141,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,110,113,136,212,215,216,224,264,200,41,40,39,37,64,239,47"
 ```
 
 # Aggregate Event-based Data from Bluedot among AMS
 ```{r}
-ams <- c(1880251, 1605651, 1694008, 1820814, 1733045, 1643084, 1831722, 1327865, 1655842,1562822)
+ams <- c(1880251, 1605651, 1694008, 1820814, 1733045, 1643084, 1831722, 1327865, 1655842, 1562822)
 ams_event_aggr <- data.frame()
 for (i in ams){
-  url <- paste0("https://developer.bluedot.global/casecounts/locations/", i, "?startDate=", startDate, "&endDate=", endDate, "&isAggregated=true&includeSources=false&api-version=v1")
+  url <- paste0("https://developer.bluedot.global/casecounts/locations/", i, "?diseaseIds=", disease, "&startDate=", startDate, "&endDate=", endDate, "&isAggregated=true&includeSources=false&api-version=v1")
   res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
   data <- enframe(pluck(res, "data")) |> unnest_wider(value)
   ams_event_aggr <- rbind(ams_event_aggr, data)
 }
-flextable(ams_event_aggr)
+ams_event_aggr |> select(!c(name, reportedDate, locationName, locationId, latitude, longitude, locationType, sources)) |> gt()
 ```
 
 
@@ -63,12 +64,12 @@ flextable(sgpData)
 country <- c(1814991, 1835841, 1861060, 1668284, 1819730, 1821275, 1966436)
 other_event_aggr <- data.frame()
 for (i in country){
-  url <- paste0("https://developer.bluedot.global/casecounts/locations/", i, "?startDate=", startDate, "&endDate=", endDate, "&isAggregated=true&includeSources=false&api-version=v1")
+  url <- paste0("https://developer.bluedot.global/casecounts/locations/", i, "?diseaseIds=", disease, "&startDate=", startDate, "&endDate=", endDate, "&isAggregated=true&includeSources=false&api-version=v1")
   res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
   data <- enframe(pluck(res, "data")) |> unnest_wider(value)
   other_event_aggr <- rbind(other_event_aggr, data)
 }
-flextable(other_event_aggr)
+other_event_aggr |> select(!c(name, reportedDate, locationName, locationId, latitude, longitude, locationType, sources)) |> gt()
 ```
 
 # Collect routine MMWR diseases from Bluedot
@@ -81,7 +82,7 @@ for (i in disease){
   data <- enframe(pluck(res, "data")) |> unnest_wider(value)
   disease_aggr <- rbind(disease_aggr, data)
 }
-flextable(disease_aggr)
+disease_aggr |> select(!c(name, reportedDate, locationId, locationName, latitude, longitude, locationType, sources)) |> gt()
 ```
 
 # Function to get data from Bluedot based on diseases among AMS
@@ -173,3 +174,10 @@ res <- GET(zikaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729
 zikaData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
 flextable(zikaData)
 ```
+
+```{r}
+url <- paste0("https://developer.bluedot.global/casecounts/diseases/", 88, "?locationIds=1966436&startDate=", startDate, "&endDate=", endDate, "&isAggregated=false&includeSources=false&api-version=v1")
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+data <- enframe(pluck(res, "data")) |> unnest_wider(value)
+```
+
