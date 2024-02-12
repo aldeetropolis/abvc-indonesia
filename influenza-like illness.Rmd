@@ -30,26 +30,26 @@ sorted_infData <- infData %>%
   arrange(reportedDate)
 
 # Convert reportedDate to date format
-sorted_infData$reportedDate <- as.Date(sorted_ibsData$reportedDate)
+sorted_infData$reportedDate <- as.Date(sorted_infData$reportedDate)
 
 # Mutate positive rates
-sorted_ibsData <- sorted_ibsData %>%
+sorted_infData <- sorted_infData %>%
   mutate(positiveRates = (totalPositiveSamples / totalSpecimensReceived) * 100)
 
 # Calculate mean values for each column
-mean_totalPositiveSamplesA <- mean(sorted_ibsData$totalPositiveSamplesA, na.rm = TRUE)
-mean_totalPositiveSamplesB <- mean(sorted_ibsData$totalPositiveSamplesB, na.rm = TRUE)
-mean_positiveRates <- mean(sorted_ibsData$positiveRates, na.rm = TRUE)
+mean_totalPositiveSamplesA <- mean(sorted_infData$totalPositiveSamplesA, na.rm = TRUE)
+mean_totalPositiveSamplesB <- mean(sorted_infData$totalPositiveSamplesB, na.rm = TRUE)
+mean_positiveRates <- mean(sorted_infData$positiveRates, na.rm = TRUE)
 
 # Fill missing values with mean
-sorted_ibsData$totalPositiveSamplesA <- coalesce(sorted_ibsData$totalPositiveSamplesA, mean_totalPositiveSamplesA)
-sorted_ibsData$totalPositiveSamplesB <- coalesce(sorted_ibsData$totalPositiveSamplesB, mean_totalPositiveSamplesB)
-sorted_ibsData$positiveRates <- coalesce(sorted_ibsData$positiveRates, mean_positiveRates)
+sorted_infData$totalPositiveSamplesA <- coalesce(sorted_infData$totalPositiveSamplesA, mean_totalPositiveSamplesA)
+sorted_infData$totalPositiveSamplesB <- coalesce(sorted_infData$totalPositiveSamplesB, mean_totalPositiveSamplesB)
+sorted_infData$positiveRates <- coalesce(sorted_infData$positiveRates, mean_positiveRates)
 ```
 
 ```{r}
 # Slice sorted_ibsData to include only the required columns
-plot_data <- sorted_ibsData %>%
+plot_data <- sorted_infData %>%
   select(reportedDate, totalPositiveSamplesA, totalPositiveSamplesB, positiveRates)
 
 plot <- highchart() |> 
@@ -60,3 +60,8 @@ plot <- highchart() |>
 
 plot
 ```
+
+```{r}
+ggplot()
+```
+

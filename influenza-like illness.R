@@ -1,9 +1,15 @@
 library(tidyverse)
 library(readxl)
+library(lubridate)
+library(flextable)
+library(zoo)
+library(jsonlite)
+library(httr)
+library(highcharter)
 
-data <- read_xlsx("~/Downloads/DataExport_020224.xlsx")
-names(data) <- tolower(names(data))
-data$inf_all <- as.numeric(data$inf_all)
+infUrl <- "https://developer.bluedot.global/casecounts/indicator-based/diseases/influenza/?locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2023-01-01&api-version=v1"
+res <- GET(infUrl, add_headers("Ocp-Apim-Subscription-Key" = "3f8e179c7c584514aa97faff3187df7d", "Cache-Control" = "no-cache")) |> content()
+infData <- enframe(pluck(res, "data")) |> unnest_wider(value)
 
 df_type <- data |> 
   filter(country_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"),
