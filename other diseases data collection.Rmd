@@ -82,7 +82,7 @@ for (i in disease){
   data <- enframe(pluck(res, "data")) |> unnest_wider(value)
   disease_aggr <- rbind(disease_aggr, data)
 }
-disease_aggr |> select(!c(name, reportedDate, locationId, locationName, latitude, longitude, locationType, sources)) |> gt()
+disease_aggr <- disease_aggr |> select(!c(name, reportedDate, locationId, locationName, latitude, longitude, locationType, sources))
 ```
 
 # Function to get data from Bluedot based on diseases among AMS
