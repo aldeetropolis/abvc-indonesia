@@ -15,7 +15,7 @@ library(tidyverse)
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
   dashboardHeader(title = "Disease Event"),
-  dashboardSidebar(),
+  dashboardSidebar(disable = TRUE),
   dashboardBody(
     fluidRow(
       dateInput("start_date",
