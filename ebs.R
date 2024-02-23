@@ -44,7 +44,7 @@ for (i in ams){
 }
 
 # Bluedot - Event Alert and Assessments
-url <- paste0("https://developer.bluedot.global/assessments/?startDate=2023-12-01&api-version=v1")
+url <- paste0("https://developer.bluedot.global/assessments/?startDate=2024-01-01&api-version=v1")
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
 length_df <- length(res$data)
 event <- data.frame()
@@ -59,7 +59,7 @@ for (i in 1:length_df){
 }
 
 data <- enframe(pluck(res, "data", 1)) |> pivot_wider(names_from = name, values_from = value)
-data$disease_name <- pluck(res, "data", 1, "diseases", 1, "diseaseName") |> unnest_wider(value)
+disease_name <- pluck(res, "data", 1, "diseases", 1, "diseaseName")
 locations <- enframe(pluck(res, "data", 1, "locations")) |> unnest_wider(value)
 species <- enframe(pluck(res, "data", 1, "species")) |> unnest_wider(value)
 sources <- enframe(pluck(res, "data", 1, "sources"))
