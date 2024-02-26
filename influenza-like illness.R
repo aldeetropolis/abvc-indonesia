@@ -57,3 +57,6 @@ ggplot() +
 
 ggplot(data = df, aes(x = date, y = pos_rate, fill = country)) +
   geom_area()
+
+# ILI data from FluID
+data <- read_csv("~/Downloads/VIW_FID.csv") |> filter(COUNTRY_CODE == "IDN")
