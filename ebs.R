@@ -37,7 +37,7 @@ for (i in ams){
 }
 
 # Bluedot - Event Alert and Assessments
-url <- paste0("https://developer.bluedot.global/assessments/?startDate=2024-01-01&locationIds=", ams, "&formatWithHTML=false&&api-version=v1")
+url <- paste0("https://developer.bluedot.global/assessments/?startDate=2024-01-01&locationIds=", ams, "&formatWithHTML=true&&api-version=v1")
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
 length_df <- length(res$data)
 event <- data.frame()
@@ -57,7 +57,7 @@ DT::datatable(data[data$name == "description",])
 text(data[data$name == "description",])
 DT::datatable(unnest(unnest(data[9,], value), value))
 kbl(unnest(unnest(data[10,], value), value)) |> kable_styling()
-kbl(data) |> kable_styling()
+kable(data, "html") |> kable_styling()
 
 |> pivot_wider(names_from = name, values_from = value)
 disease_name <- enframe(pluck(res, "data", 1, "diseases", 1, "diseaseName"))
@@ -73,7 +73,7 @@ url <- paste0("https://developer.bluedot.global/daas/articles/infectious-disease
 res <- content(GET(url, add_headers("Ocp-Apim-Subscription-Key" = "ae0e017fd9b9419a927a00f3f1524edb", "Cache-Control" = "no-cache")))
 data <- enframe(pluck(res, "data")) |> unnest_wider(value) |> unnest(diseases) |> unnest(locations)|> unnest_wider(diseases, names_sep = "_") |> unnest_wider(locations, names_sep = "_")
 # DT::datatable(data)
-kable(data) |> kable_styling()
+kable(data, "html") |> kable_styling()
 
 |> select(sourceUrl, sourceName, publishedTimestamp, articleHeadline, diseases, locations, articleSummary)
 diseaseName <- enframe(pluck(res, "data", 10, "diseases")) |> select(-name) |> unnest_wider(value)
