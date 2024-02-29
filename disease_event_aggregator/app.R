@@ -23,20 +23,24 @@ ui <- dashboardPage(
   dashboardBody(
     tabsetPanel(
         tabPanel(title = "Newsfeed API",
-                 fluidRow(selectInput("country_1", "Pilih region:",
-                                      choices = c("ASEAN" = ams, "Other country" = other_country)),
-                          dateInput("start_date_1", "Start Date:")),
-                 fluidRow(actionButton("run_1", "Update Data")),
-                 fluidRow(DTOutput(outputId = "table_newsfeed"))),
+                 sidebarLayout(
+                   sidebarPanel(width = 2,
+                     selectInput("country_1", "Pilih region:",
+                                 choices = c("ASEAN" = ams, "Other country" = other_country)),
+                     dateInput("start_date_1", "Start Date:"),
+                     actionButton("run_1", "Update Data")),
+                   mainPanel(width = 10, DTOutput(outputId = "table_newsfeed")))),
         tabPanel(title = "Human Disease Case & Death",
-                 fluidRow(selectInput("country_2", "Pilih region:",
-                                      choices = c("ASEAN" = ams, "Other country" = other_country)),
-                          dateInput("start_date_2", "Start Date:")),
-                 fluidRow(actionButton("run_2", "Update Data")),
-                 fluidRow(DTOutput(outputId = "table_ebs"))
+                 sidebarLayout(
+                   sidebarPanel(width = 2,
+                     selectInput("country_2", "Pilih region:",
+                                 choices = c("ASEAN" = ams, "Other country" = other_country)),
+                     dateInput("start_date_2", "Start Date:"),
+                     actionButton("run_2", "Update Data")),
+                   mainPanel(width = 10, DTOutput(outputId = "table_ebs"))))
                )
              )
-      ))
+      )
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
@@ -58,7 +62,7 @@ server <- function(input, output, session) {
     startDate <- input$start_date_2
     url2 <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=", disease, "&locationIds=", varCountry, "&startDate=", startDate, "&isAggregated=false&includeSources=true&api-version=v1")
     res2 <- content(GET(url2, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")))
-    data2 <- enframe(pluck(res, "data")) |> unnest_wider(value) |> unnest(minSources) |> 
+    data2 <- enframe(pluck(res2, "data")) |> unnest_wider(value) |> unnest(minSources) |> 
       unnest_wider(minSources) |> mutate(date = as.Date(publishedDate)) |> 
       select(date, diseaseName, countryName, sourceTitle, sourceUrl, sourceCategory)
     return(data2)
@@ -67,9 +71,6 @@ server <- function(input, output, session) {
   output$table_newsfeed <- renderDT(data1(),
                                     options = list(
                                       autoWidth = TRUE,
-                                      columnDefs = list(
-                                        list(width = "50px", targets = c(1)),
-                                        list(width = "100px", targets = c(8,9))),
                                       pageLength = 10,
                                       scrollX = TRUE,
                                       scrollY = "500px"
@@ -77,12 +78,9 @@ server <- function(input, output, session) {
   output$table_ebs <- renderDT(data2(),
                                options = list(
                                  autoWidth = TRUE,
-                                 columnDefs = list(
-                                   list(width = "50px", targets = c(1)),
-                                   list(width = "100px", targets = c(8,9))),
                                  pageLength = 10,
                                  scrollX = TRUE,
-                                 scrollY = "500px"
+                                 scrollY = "600px"
                                ))
 }
 

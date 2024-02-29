@@ -51,7 +51,7 @@ for (i in 1:length_df){
 }
 
 data <- enframe(pluck(res, "data", 1)) |> pivot_wider(names_from = name, values_from = value)
-disease_name <- pluck(res, "data", 1, "diseases", 1, "diseaseName")
+disease_name <- enframe(pluck(res, "data", 1, "diseases", 1, "diseaseName"))
 locations <- enframe(pluck(res, "data", 1, "locations")) |> unnest_wider(value)
 species <- enframe(pluck(res, "data", 1, "species")) |> unnest_wider(value)
 sources <- enframe(pluck(res, "data", 1, "sources"))
