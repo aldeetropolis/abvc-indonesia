@@ -19,70 +19,62 @@ ams <- "1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,
 # Define UI for application that draws a histogram
 ui <- dashboardPage(
   dashboardHeader(title = "Disease Event"),
-  dashboardSidebar(
-    sidebarMenu()
-  ),
+  dashboardSidebar(disable = TRUE),
   dashboardBody(
-    fluidRow(
-      column(width = 2,
-        selectInput("country", "Pilih region:",
-                        choices = c("ASEAN" = ams, "Other country" = other_country)),
-        dateInput("start_date", "Start Date:"),
-        actionButton("run", "Update Data")),
-      column(width = 10,
-             tabsetPanel(id = "display",
-               tabPanel("Newsfeed API", tabName = "tab_1",
-                        DTOutput(outputId = "table_newsfeed")),
-               tabPanel(title = "Human Disease Case & Death", tabName = "tab_2",
-                        value = DTOutput(outputId = "table_ebs"))
+    tabsetPanel(
+        tabPanel(title = "Newsfeed API",
+                 fluidRow(selectInput("country_1", "Pilih region:",
+                                      choices = c("ASEAN" = ams, "Other country" = other_country)),
+                          dateInput("start_date_1", "Start Date:")),
+                 fluidRow(actionButton("run_1", "Update Data")),
+                 fluidRow(DTOutput(outputId = "table_newsfeed"))),
+        tabPanel(title = "Human Disease Case & Death",
+                 fluidRow(selectInput("country_2", "Pilih region:",
+                                      choices = c("ASEAN" = ams, "Other country" = other_country)),
+                          dateInput("start_date_2", "Start Date:")),
+                 fluidRow(actionButton("run_2", "Update Data")),
+                 fluidRow(DTOutput(outputId = "table_ebs"))
                )
              )
-      )
-    )
-  )
+      ))
 
 # Define server logic required to draw a histogram
 server <- function(input, output, session) {
-  data_tab1 <- reactiveVal(NULL)
-  data_tab2 <- reactiveVal(NULL)
-  
-  observeEvent(input$run, {
+  disease <- "4,6,7,10,13,15,19,37,38,39,40,41,43,47,53,55,62,64,83,84,88,11,113,115,136,141,153,156,164,166,172,174,200,202,203,204,205,206,207,212,215,216,224,239,264,275,281"
+  data1 <- eventReactive(input$run_1, {
     # Get data from Newsfeed API
-    varCountry <- input$country
-    startDate <- input$start_date
-    disease <- "4,6,7,10,13,15,19,37,38,39,40,41,43,47,53,55,62,64,83,84,88,11,113,115,136,141,153,156,164,166,172,174,200,202,203,204,205,206,207,212,215,216,224,239,264,275,281"
+    varCountry <- input$country_1
+    startDate <- input$start_date_1
     url1 <- paste0("https://developer.bluedot.global/daas/articles/infectious-diseases/?startDate=", startDate, "&locationIds=", varCountry,"&diseaseId=", disease, "&includeBody=false&includeDuplicates=false&excludeArticlesWithoutEvents=false&limit=1000&format=json&api-version=v1")
     res1 <- content(GET(url1, add_headers("Ocp-Apim-Subscription-Key" = "ae0e017fd9b9419a927a00f3f1524edb", "Cache-Control" = "no-cache")))
     data1 <- enframe(pluck(res1, "data")) |> unnest_wider(value) |> unnest(diseases) |> unnest(locations) |> 
       mutate(date = as.Date(publishedTimestamp)) |> select(sourceUrl, sourceName, date, diseases, locations, articleHeadline, articleSummary) |> 
       unnest_wider(diseases, names_sep = "_") |> unnest_wider(locations, names_sep = "_")
-    
+    return(data1)
+  })
+  data2 <- eventReactive(input$run_2, {
     # Get data from Human Disease Case & Death API
+    varCountry <- input$country_2
+    startDate <- input$start_date_2
     url2 <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=", disease, "&locationIds=", varCountry, "&startDate=", startDate, "&isAggregated=false&includeSources=true&api-version=v1")
     res2 <- content(GET(url2, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")))
-    data2 <- enframe(pluck(res2, "data")) |> unnest_wider(value) |> mutate(date = as.Date(reportedDate)) |> 
-      select(date, diseaseName, countryName, minSources) |> unnest(minSources) |> 
-      unnest_wider(minSources)
-    
-    # Update table
-    data_tab1(data1)
-    data_tab2(data2)
-    
-    updateTabItems(session, "display", "tab_2")
-  })
+    data2 <- enframe(pluck(res, "data")) |> unnest_wider(value) |> unnest(minSources) |> 
+      unnest_wider(minSources) |> mutate(date = as.Date(publishedDate)) |> 
+      select(date, diseaseName, countryName, sourceTitle, sourceUrl, sourceCategory)
+    return(data2)
+    })
   
-  output$table_newsfeed <- renderDT(data_tab1(),
-                           options = list(
-                             autoWidth = TRUE,
-                             columnDefs = list(
-                               list(width = "50px", targets = c(1)),
-                               list(width = "100px", targets = c(8,9))),
-                             pageLength = 10,
-                             scrollX = TRUE,
-                             scrollY = "500px"
-                           ))
-  
-  output$table_ebs <- renderDT(data_tab2(),
+  output$table_newsfeed <- renderDT(data1(),
+                                    options = list(
+                                      autoWidth = TRUE,
+                                      columnDefs = list(
+                                        list(width = "50px", targets = c(1)),
+                                        list(width = "100px", targets = c(8,9))),
+                                      pageLength = 10,
+                                      scrollX = TRUE,
+                                      scrollY = "500px"
+                                    ))
+  output$table_ebs <- renderDT(data2(),
                                options = list(
                                  autoWidth = TRUE,
                                  columnDefs = list(
@@ -91,7 +83,7 @@ server <- function(input, output, session) {
                                  pageLength = 10,
                                  scrollX = TRUE,
                                  scrollY = "500px"
-                                 ))
+                               ))
 }
 
 # Run the application 

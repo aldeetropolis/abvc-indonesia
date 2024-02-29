@@ -14,9 +14,9 @@ endDate <- "2024-02-24"
 # Bluedot - Human Disease Case & Death
 url <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=", disease, "&locationIds=", ams, "&startDate=", startDate, "&endDate=", endDate, "&isAggregated=false&includeSources=true&api-version=v1")
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")) |> content()
-ams_ebs <- enframe(pluck(res, "data")) |> unnest_wider(value) |> mutate(date = as.Date(reportedDate)) |> 
-  select(date, diseaseName, countryName, minSources) |> unnest(minSources) |> 
-  unnest_wider(minSources)
+ams_ebs <- enframe(pluck(res, "data")) |> unnest_wider(value) |> unnest(minSources) |> 
+  unnest_wider(minSources) |> mutate(date = as.Date(publishedDate)) |> 
+  select(date, diseaseName, countryName, sourceTitle, sourceUrl, sourceCategory)
 
 ams_ebs <- data.frame()
 for (i in ams){

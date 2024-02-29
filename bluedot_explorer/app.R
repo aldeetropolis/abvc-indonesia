@@ -52,9 +52,7 @@ body <- dashboardBody(
   downloadButton('download',"Download the data")
 )
 
-
 ui <- dashboardPage(header, sidebar, body)
-
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
