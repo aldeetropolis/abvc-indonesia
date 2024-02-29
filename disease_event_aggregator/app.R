@@ -12,6 +12,8 @@ library(httr)
 library(jsonlite)
 library(tidyverse)
 library(DT)
+library(kableExtra)
+library(knitr)
 
 other_country <- "2077456,1814991,1819730,102358,1835841,1668284,290557,2635167,1861060,1821275,289688,337996,1269750,2750405,2186224,286963,1168579,2017370,1227603,1966436,298795,1210997,2921044,130758,99237,248816,1522867,1282028,934292,1282988,6252001,1512440,290291,6251999,4043988,285570,1559582,2088628,1252634,2623032,2205218,660013,3017382,390903,3175395,798544,953987,2510769,2661886,2658434,2782113,2802361,357994,294640,192950,2029969,3144096,935317,1218197,690791"
 ams <- "1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822"
@@ -29,7 +31,7 @@ ui <- dashboardPage(
                                  choices = c("ASEAN" = ams, "Other country" = other_country)),
                      dateInput("start_date_1", "Start Date:"),
                      actionButton("run_1", "Update Data")),
-                   mainPanel(width = 10, DTOutput(outputId = "table_newsfeed")))),
+                   mainPanel(width = 10, htmlOutput("table_newsfeed")))),
         tabPanel(title = "Human Disease Case & Death",
                  sidebarLayout(
                    sidebarPanel(width = 2,
@@ -37,7 +39,7 @@ ui <- dashboardPage(
                                  choices = c("ASEAN" = ams, "Other country" = other_country)),
                      dateInput("start_date_2", "Start Date:"),
                      actionButton("run_2", "Update Data")),
-                   mainPanel(width = 10, DTOutput(outputId = "table_ebs"))))
+                   mainPanel(width = 10, htmlOutput("table_ebs"))))
                )
              )
       )
@@ -68,20 +70,8 @@ server <- function(input, output, session) {
     return(data2)
     })
   
-  output$table_newsfeed <- renderDT(data1(),
-                                    options = list(
-                                      autoWidth = TRUE,
-                                      pageLength = 10,
-                                      scrollX = TRUE,
-                                      scrollY = "500px"
-                                    ))
-  output$table_ebs <- renderDT(data2(),
-                               options = list(
-                                 autoWidth = TRUE,
-                                 pageLength = 10,
-                                 scrollX = TRUE,
-                                 scrollY = "600px"
-                               ))
+  output$table_newsfeed <- renderText(kable(data1()) |> kable_styling() |> scroll_box(height = "650px"))
+  output$table_ebs <- renderText(kable(data2()) |> kable_styling() |> scroll_box(height = "650px"))
 }
 
 # Run the application 

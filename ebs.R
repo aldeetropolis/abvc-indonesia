@@ -4,8 +4,8 @@ library(jsonlite)
 library(httr)
 library(gt)
 
-country <- c(2077456, 1814991, 1819730, 102358, 1835841, 1668284, 290557, 2635167, 1861060, 1821275, 289688, 337996, 1269750, 2750405, 2186224, 286963, 1168579, 2017370, 1227603, 1966436, 298795, 1210997, 2921044, 130758, 99237, 248816, 1522867, 1282028, 934292, 1282988, 6252001, 1512440, 290291, 6251999, 4043988, 285570, 1559582, 2088628, 1252634, 2623032, 2205218, 660013, 3017382, 390903, 3175395, 798544, 953987, 2510769, 2661886, 2658434, 2782113, 2802361, 357994, 294640, 192950, 2029969, 3144096, 935317, 1218197, 690791)
-ams <- c(1880251, 1605651, 1694008, 1820814, 1733045, 1643084, 1831722, 1327865, 1655842,1562822)
+# country <- c(2077456, 1814991, 1819730, 102358, 1835841, 1668284, 290557, 2635167, 1861060, 1821275, 289688, 337996, 1269750, 2750405, 2186224, 286963, 1168579, 2017370, 1227603, 1966436, 298795, 1210997, 2921044, 130758, 99237, 248816, 1522867, 1282028, 934292, 1282988, 6252001, 1512440, 290291, 6251999, 4043988, 285570, 1559582, 2088628, 1252634, 2623032, 2205218, 660013, 3017382, 390903, 3175395, 798544, 953987, 2510769, 2661886, 2658434, 2782113, 2802361, 357994, 294640, 192950, 2029969, 3144096, 935317, 1218197, 690791)
+# ams <- c(1880251, 1605651, 1694008, 1820814, 1733045, 1643084, 1831722, 1327865, 1655842,1562822)
 disease <- "4,6,7,10,13,15,19,37,38,39,40,41,43,47,53,55,62,64,83,84,88,11,113,115,136,141,153,156,164,166,172,174,200,202,203,204,205,206,207,212,215,216,224,239,264,275,281"
 ams <- "1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822"
 startDate <- "2023-02-18"
@@ -17,6 +17,7 @@ res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791
 ams_ebs <- enframe(pluck(res, "data")) |> unnest_wider(value) |> unnest(minSources) |> 
   unnest_wider(minSources) |> mutate(date = as.Date(publishedDate)) |> 
   select(date, diseaseName, countryName, sourceTitle, sourceUrl, sourceCategory)
+kbl(ams_ebs) |> kable_styling()
 
 ams_ebs <- data.frame()
 for (i in ams){
@@ -36,7 +37,7 @@ for (i in ams){
 }
 
 # Bluedot - Event Alert and Assessments
-url <- paste0("https://developer.bluedot.global/assessments/?startDate=2024-01-01&api-version=v1")
+url <- paste0("https://developer.bluedot.global/assessments/?startDate=2024-01-01&locationIds=", ams, "&formatWithHTML=false&&api-version=v1")
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
 length_df <- length(res$data)
 event <- data.frame()
@@ -50,19 +51,29 @@ for (i in 1:length_df){
   event <- rbind(event, join)
 }
 
-data <- enframe(pluck(res, "data", 1)) |> pivot_wider(names_from = name, values_from = value)
+library(kableExtra)
+data <- enframe(pluck(res, "data", 1))
+DT::datatable(data[data$name == "description",])
+text(data[data$name == "description",])
+DT::datatable(unnest(unnest(data[9,], value), value))
+kbl(unnest(unnest(data[10,], value), value)) |> kable_styling()
+kbl(data) |> kable_styling()
+
+|> pivot_wider(names_from = name, values_from = value)
 disease_name <- enframe(pluck(res, "data", 1, "diseases", 1, "diseaseName"))
-locations <- enframe(pluck(res, "data", 1, "locations")) |> unnest_wider(value)
-species <- enframe(pluck(res, "data", 1, "species")) |> unnest_wider(value)
+locations <- enframe(pluck(res, "data", 1, "locations")) |> unnest(value)
+species <- enframe(pluck(res, "data", 1, "species")) |> unnest(value)
 sources <- enframe(pluck(res, "data", 1, "sources"))
-join <- cbind(event, data, diseases, species, locations, sources)
+join <- rbind(data, disease_name, species, locations, sources)
 event <- rbind(event, join)
+DT::datatable(join)
 
 # Bluedot - Newsfeed
 url <- paste0("https://developer.bluedot.global/daas/articles/infectious-diseases/?startDate=", startDate, "&locationIds=", ams,"&diseaseId=", disease, "&includeBody=false&includeDuplicates=false&excludeArticlesWithoutEvents=false&limit=1000&format=json&api-version=v1")
 res <- content(GET(url, add_headers("Ocp-Apim-Subscription-Key" = "ae0e017fd9b9419a927a00f3f1524edb", "Cache-Control" = "no-cache")))
 data <- enframe(pluck(res, "data")) |> unnest_wider(value) |> unnest(diseases) |> unnest(locations)|> unnest_wider(diseases, names_sep = "_") |> unnest_wider(locations, names_sep = "_")
-DT::datatable(data)
+# DT::datatable(data)
+kable(data) |> kable_styling()
 
 |> select(sourceUrl, sourceName, publishedTimestamp, articleHeadline, diseases, locations, articleSummary)
 diseaseName <- enframe(pluck(res, "data", 10, "diseases")) |> select(-name) |> unnest_wider(value)
