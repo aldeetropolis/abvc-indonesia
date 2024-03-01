@@ -8,6 +8,7 @@ library(httr)
 library(highcharter)
 library(wesanderson)
 
+# Confirmed Influenza data from FluNet
 infUrl <- "https://developer.bluedot.global/casecounts/indicator-based/diseases/influenza/?locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2023-01-01&api-version=v1"
 res <- GET(infUrl, add_headers("Ocp-Apim-Subscription-Key" = "3f8e179c7c584514aa97faff3187df7d", "Cache-Control" = "no-cache")) |> content()
 infData <- enframe(pluck(res, "data")) |> unnest_wider(value)
@@ -63,3 +64,7 @@ data <- read_csv("~/Downloads/VIW_FID.csv") |> filter(COUNTRY_CODE == "IDN", MMW
 names(data) <- tolower(names(data))
 ggplot(data = data, aes(x = mmwr_week, y = reported_cases)) +
   geom_line(aes(color = factor(mmwr_year))) + facet_wrap( ~ case_info, ncol = 1)
+
+
+library(curl)
+download.file("https://xmart-api-public.who.int/FLUMART/VIW_FID?$format=csv", "FluID.csv")
