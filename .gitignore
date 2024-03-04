@@ -55,3 +55,7 @@ rsconnect/
 *.jpeg
 *.jpg
 *.png
+
+# Folders
+txtfiles/
+output/
