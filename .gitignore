@@ -50,3 +50,8 @@ rsconnect/
 
 # CSV files
 *.csv
+
+# Image files
+*.jpeg
+*.jpg
+*.png
