@@ -60,11 +60,9 @@ ggplot(data = df, aes(x = date, y = pos_rate, fill = country)) +
   geom_area()
 
 # ILI data from FluID
-data <- read_csv("~/Downloads/VIW_FID.csv") |> filter(COUNTRY_CODE == "IDN", MMWR_WEEKSTARTDATE >= "2019-01-01")
+library(curl)
+curl_download("https://xmart-api-public.who.int/FLUMART/VIW_FID?$format=csv", "src/FluID.csv")
+iliData <- read_csv("src/VIW_FID.csv") |> filter(COUNTRY_CODE == "IDN", MMWR_WEEKSTARTDATE >= "2019-01-01")
 names(data) <- tolower(names(data))
 ggplot(data = data, aes(x = mmwr_week, y = reported_cases)) +
   geom_line(aes(color = factor(mmwr_year))) + facet_wrap( ~ case_info, ncol = 1)
-
-
-library(curl)
-download.file("https://xmart-api-public.who.int/FLUMART/VIW_FID?$format=csv", "FluID.csv")
