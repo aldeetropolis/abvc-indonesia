@@ -7,13 +7,29 @@ library(jsonlite)
 library(httr)
 library(highcharter)
 library(wesanderson)
+library(curl)
+library(tsibble)
+library(xts)
+
+# COVID-19 data from OWID
+owid_link <- "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv"
+curl_download(owid_link, "src/owid-covid-data.csv")
+covid_data <- read_csv("src/owid-covid-data.csv") |> 
+  filter(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS")) |> 
+  mutate(location = replace(location, location == "Laos", "Lao PDR"),
+         location = replace(location, location == "Brunei", "Brunei DS"),
+         week = floor_date(date, "week"))
+
+covid_data$week <- floor_date(covid_data$date)
+
+covid_asean <- covid_data |> group_by(week) |> summarise(n = sum(new_cases, na.rm = TRUE))
 
 # Confirmed Influenza data from FluNet
-infUrl <- "https://developer.bluedot.global/casecounts/indicator-based/diseases/influenza/?locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2023-01-01&api-version=v1"
-res <- GET(infUrl, add_headers("Ocp-Apim-Subscription-Key" = "3f8e179c7c584514aa97faff3187df7d", "Cache-Control" = "no-cache")) |> content()
-infData <- enframe(pluck(res, "data")) |> unnest_wider(value)
+fluUrl <- "https://developer.bluedot.global/casecounts/indicator-based/diseases/influenza/?locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2018-01-01&api-version=v1"
+res <- GET(fluUrl, add_headers("Ocp-Apim-Subscription-Key" = "3f8e179c7c584514aa97faff3187df7d", "Cache-Control" = "no-cache")) |> content()
+fluData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> mutate(date = as.Date(reportedDate))
 
-df_type_asean <- infData |> 
+fluAsean <- fluData |> 
   mutate(date = as.Date(reportedDate)) |> 
   group_by(date) |> 
   summarise(inf_a = sum(totalPositiveSamplesA, na.rm = TRUE),
@@ -21,7 +37,7 @@ df_type_asean <- infData |>
             inf_tot = sum(totalPositiveSamples, na.rm = TRUE)) |> 
   pivot_longer(cols = c(inf_a, inf_b), names_to = "type", values_to = "n")
 
-df_type_country <- infData |> 
+fluCountry <- fluData |> 
   mutate(date = as.Date(reportedDate)) |> 
   group_by(date, countryName,) |> 
   summarise(inf_a = sum(totalPositiveSamplesA),
@@ -37,17 +53,7 @@ df <- data |>
 ratio <- max(df$inf_all) / max(df$pos_rate)
 df <- transform(df, pos_rate_scaled = pos_rate * ratio)
 
-plot <- ggplot() +
-  geom_area(data = owid_weekly_data, aes(x = week, y = cases, fill = location)) + 
-  geom_line(data = owid_weekly_deaths, aes(week, deaths*200, colour = "Number of Death"), linetype = "solid", linewidth = 1.2) +
-  scale_y_continuous(sec.axis = sec_axis(~ . / 200, name = "No. of Death"), name = "Weekly Cases") +
-  scale_x_date(breaks = "1 month", labels = date_format("%b-%Y"),
-               limits = as.Date(c('2022-12-25','2023-12-31')), name = element_blank()) +
-  scale_colour_manual("", breaks = c("Number of Death"), values = "black") +
-  theme(legend.title = element_blank()) +
-  theme_hc()
-
-ggplot(data = df_type_asean) + 
+ggplot(data = fluAsean) + 
   geom_col(aes(date, as.numeric(n), fill = type),
            position = position_dodge()) +
   geom_line(aes(x = date, y = inf_tot, colour = "Total Cases")) +
@@ -59,10 +65,38 @@ ggplot() +
 ggplot(data = df, aes(x = date, y = pos_rate, fill = country)) +
   geom_area()
 
+# Highchart for COVID & Influenza data
+highchart(type = "stock") |> 
+  hc_add_series(data = covid_asean, yAxis = 0, type = 'line',
+                hcaes(x = week, y = n)) |> 
+  hc_add_yAxis(title = list(text = "COVID-19"), relative = 1) |> 
+  hc_add_series(data = fluAsean, yAxis = 1, type = 'line',
+                hcaes(x = date, y = inf_tot)) |> 
+  hc_add_yAxis(title = list(text = "Influenza"), relative = 1)
+
+# |> 
+#   hc_xAxis(dateTimeLabelFormats = list(month = "%b '%y"), type = "datetime")
+
 # ILI data from FluID
-library(curl)
-curl_download("https://xmart-api-public.who.int/FLUMART/VIW_FID?$format=csv", "src/FluID.csv")
-iliData <- read_csv("src/VIW_FID.csv") |> filter(COUNTRY_CODE == "IDN", MMWR_WEEKSTARTDATE >= "2019-01-01")
-names(data) <- tolower(names(data))
-ggplot(data = data, aes(x = mmwr_week, y = reported_cases)) +
-  geom_line(aes(color = factor(mmwr_year))) + facet_wrap( ~ case_info, ncol = 1)
+fluID_link <- "https://xmart-api-public.who.int/FLUMART/VIW_FID?$format=csv"
+curl_download(fluID_link, "src/FluID.csv")
+iliData <- read_csv("src/FluID.csv") |> rename_with(tolower)
+iliIdn <- iliData |> filter(country_code == "IDN", agegroup_code == "All", mmwr_year >= 2018) |> 
+  group_by(mmwr_weekstartdate) |> summarise(n_ili = sum(outpatients, na.rm = TRUE), n_sari = sum(inpatients, na.rm = TRUE))
+iliIdn_ts <- as.xts(iliIdn)
+ggplot(data = iliIdn, aes(x = mmwr_week, y = n_ili)) +
+  geom_line(aes(color = factor(mmwr_year)))
+
+## ASEAN data
+iliAsean <- iliData |> filter(country_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"), 
+                              agegroup_code == "All", mmwr_year >= 2019, case_info %in% c("ILI", "SARI")) |> 
+  group_by(mmwr_weekstartdate, country_area_territory) |> 
+  summarise(n_ili = sum(outpatients, na.rm = TRUE), n_sari = sum(inpatients, na.rm = TRUE))
+
+## Highcharter for ILI
+highchart(type = "stock") |> 
+  hc_add_series(data = iliAsean, yAxis = 0, type = "line", showInLegend = TRUE,
+                hcaes(x = mmwr_weekstartdate, y = n_ili, group = country_area_territory)) |> 
+  hc_add_yAxis(title = list(text = "ILI"), relative = 1) |> 
+  hc_add_series(data = iliAsean, yAxis = 1, hcaes(x = mmwr_weekstartdate, y = n_sari, group = country_area_territory), type = "line") |> 
+  hc_add_yAxis(title = list(text = "SARI"), relative = 1)
