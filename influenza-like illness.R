@@ -1,14 +1,11 @@
 library(tidyverse)
-library(readxl)
 library(lubridate)
-library(flextable)
 library(zoo)
 library(jsonlite)
 library(httr)
 library(highcharter)
 library(wesanderson)
 library(curl)
-library(tsibble)
 library(xts)
 
 # COVID-19 data from OWID
