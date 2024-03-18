@@ -91,7 +91,7 @@ kbl(ams_ebs) |> kable_styling()
 disease <- c(55, 141, 10, 43, 4, 53)
 disease_aggr <- data.frame()
 for (i in disease){
-  url <- paste0("https://developer.bluedot.global/casecounts/diseases/", i, "?locationIds=1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822&startDate=2024-01-01&endDate=", endDate, "&isAggregated=true&api-version=v1")
+  url <- paste0("https://developer.bluedot.global/casecounts/diseases/", i, "?locationIds=", ams, "&startDate=2024-01-01&endDate=", endDate, "&isAggregated=true&api-version=v1")
   res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
   data <- enframe(pluck(res, "data")) |> unnest_wider(value)
   disease_aggr <- rbind(disease_aggr, data)
