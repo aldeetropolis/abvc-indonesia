@@ -4,9 +4,7 @@ library(zoo)
 library(jsonlite)
 library(httr)
 library(highcharter)
-library(wesanderson)
 library(curl)
-library(xts)
 
 # COVID-19 data from OWID
 owid_link <- "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv"
@@ -42,26 +40,26 @@ fluCountry <- fluData |>
             inf_tot = sum(totalPositiveSamples, na.rm = TRUE)) |> 
   pivot_longer(cols = c(inf_a, inf_b), names_to = "type", values_to = "n")
 
-df <- data |> 
-  filter(country_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"),
-         iso_date >= "2023-01-01") |> 
-  rename(country = "country/area/territory") |> 
-  mutate(date = as.Date(iso_sdate),
-         pos_rate = (as.numeric(inf_all)/as.numeric(spec_processed_nb)*100))
-ratio <- max(df$inf_all) / max(df$pos_rate)
-df <- transform(df, pos_rate_scaled = pos_rate * ratio)
-
-ggplot(data = fluAsean) + 
-  geom_col(aes(date, as.numeric(n), fill = type),
-           position = position_dodge()) +
-  geom_line(aes(x = date, y = inf_tot, colour = "Total Cases")) +
-  scale_color_manual(values = "black")
-
-ggplot() +
-  geom_smooth(data = filter(df, country == "Indonesia"), aes(x = date, y = pos_rate))
-
-ggplot(data = df, aes(x = date, y = pos_rate, fill = country)) +
-  geom_area()
+# df <- data |> 
+#   filter(country_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"),
+#          iso_date >= "2023-01-01") |> 
+#   rename(country = "country/area/territory") |> 
+#   mutate(date = as.Date(iso_sdate),
+#          pos_rate = (as.numeric(inf_all)/as.numeric(spec_processed_nb)*100))
+# ratio <- max(df$inf_all) / max(df$pos_rate)
+# df <- transform(df, pos_rate_scaled = pos_rate * ratio)
+# 
+# ggplot(data = fluAsean) + 
+#   geom_col(aes(date, as.numeric(n), fill = type),
+#            position = position_dodge()) +
+#   geom_line(aes(x = date, y = inf_tot, colour = "Total Cases")) +
+#   scale_color_manual(values = "black")
+# 
+# ggplot() +
+#   geom_smooth(data = filter(df, country == "Indonesia"), aes(x = date, y = pos_rate))
+# 
+# ggplot(data = df, aes(x = date, y = pos_rate, fill = country)) +
+#   geom_area()
 
 # Highchart for COVID & Influenza data
 highchart(type = "stock") |> 

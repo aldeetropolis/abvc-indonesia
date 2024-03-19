@@ -26,15 +26,12 @@ country <- "2077456,1814991,1819730,102358,1835841,1668284,290557,2635167,186106
 
 # Aggregate Data from Bluedot Human Disease and Case API among AMS
 ```{r}
-ams <- c(1880251, 1605651, 1694008, 1820814, 1733045, 1643084, 1831722, 1327865, 1655842, 1562822)
-ams_event_aggr <- data.frame()
-for (i in ams){
-  url <- paste0("https://developer.bluedot.global/casecounts/locations/", i, "?diseaseIds=", disease, "&startDate=", startDate, "&endDate=", endDate, "&isAggregated=true&includeSources=false&api-version=v1")
-  res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
-  data <- enframe(pluck(res, "data")) |> unnest_wider(value)
-  ams_event_aggr <- rbind(ams_event_aggr, data)
-}
-View(ams_event_aggr |> select(!c(name, reportedDate, locationName, locationId, latitude, longitude, locationType, sources)))
+#ams <- c(1880251, 1605651, 1694008, 1820814, 1733045, 1643084, 1831722, 1327865, 1655842, 1562822)
+url <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=", disease, "&locationIds=", ams, "&startDate=", startDate, "&endDate=", endDate, "&isAggregated=TRUE&includeSources=FALSE&includeCsv=FALSE&api-version=v1")
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+data <- enframe(pluck(res, "data")) |> unnest_wider(value)
+
+#View(ams_event_aggr |> select(!c(name, reportedDate, locationName, locationId, latitude, longitude, locationType, sources)))
 ```
 
 

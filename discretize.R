@@ -1,5 +1,2 @@
-data <- data.frame(
-  country = c("Indonesia", "Thailand"),
-  case = c(83, 1)
-)
-hist(data$case, breaks = 2)
+case = c(675, 2, 2, 5, 405, 1)
+hist(case, breaks = 3)
