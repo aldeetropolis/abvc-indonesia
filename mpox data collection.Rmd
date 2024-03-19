@@ -1,0 +1,188 @@
+---
+title: "Mpox data collection"
+output: html_document
+date: "2023-07-07"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(tidyverse)
+library(lubridate)
+library(flextable)
+library(zoo)
+library(jsonlite)
+library(httr)
+```
+
+# OWID Source
+## Data import
+
+```{r data}
+link <- "https://raw.githubusercontent.com/owid/monkeypox/main/owid-monkeypox-data.csv"
+download.file(link, "mpox-owid.csv")
+data <- read_csv("mpox-owid.csv")
+world_data <- data |> filter(iso_code == "OWID_WRL", date >= "2023-01-01") |> mutate(new_cases_ma = rollmean(new_cases, k = 7, fill = NA))
+```
+
+## Mpox World Plot
+
+```{r world, echo=FALSE}
+mpox_world_plot <- ggplot(data = world_data, aes(x = date, y = new_cases_ma)) + 
+  geom_line(color = "blue", size = 1) + 
+  labs(x = element_blank(), y = "Number of Cases") +
+  scale_y_continuous("Mpox Cases",
+                     breaks = c(10, 20, 30, 40, 50, 60, 70, 80, 90, 100),
+                     minor_breaks = NULL) +
+  scale_x_date(minor_breaks = NULL, date_breaks = "month", date_labels = "%b") +
+  theme_linedraw() +
+  theme(panel.grid.major.x = element_blank())
+mpox_world_plot
+```
+
+```{r}
+png("mpox world 23 November 2023.jpeg", units="px", width=4000, height=2250, res=300)
+mpox_world_plot
+dev.off()
+```
+
+## Mpox cases by region
+```{r}
+region_data <- data |> filter(grepl("OWID", iso_code), date >= "2023-01-01", location != "World") |> 
+  mutate(region = if_else(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"), "ASEAN", if_else(location %in% c("North America", "South America"), "AMERICA", location))) |> 
+  group_by(region) |> summarise(new_cases = sum(new_cases), new_deaths = sum(new_deaths))
+region_data
+# View(region_data)
+```
+
+
+
+## Mpox cases in the ASEAN Region
+```{r}
+asean_data <- data |> filter(iso_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"), date >= "2023-01-01")
+asean_data |> 
+  group_by(location) |> 
+  summarise(cum_cases = sum(new_cases), cum_death = sum(new_deaths), cfr = round((cum_death/cum_cases)*100, 2))
+```
+
+```{r}
+asean_data |> summarise(cum_cases = sum(new_cases), cum_death = sum(new_deaths), cfr = round((cum_death/cum_cases)*100, 2))
+```
+
+
+```{r}
+asean_data |> group_by(location) |> 
+  slice(tail(row_number(), 7)) |> 
+  select(1:7)
+```
+
+## Mpox cases in the Asia-Pacific region (Jan. 1 to Oct 4, 2023)
+```{r}
+ap_data <- data |> filter(iso_code %in% c("AUS", "IND", "JPN", "NPL", "NZL", "CHN", "KOR", "LKA"), date >= "2023-01-01")
+ap_data |> group_by(location) |> 
+  summarise(cum_cases = sum(new_cases), cum_death = sum(new_deaths), cfr = round((cum_death/cum_cases)*100, 2))
+```
+
+```{r}
+ap_data |> summarise(cum_cases = sum(new_cases), cum_death = sum(new_deaths), cfr = round((cum_death/cum_cases)*100, 2))
+```
+
+```{r}
+ap_data |> group_by(location) |> 
+  slice(tail(row_number(), 7)) |> 
+  select(1:7)
+```
+
+## Top 5 countries with the most mpox cases globally
+```{r}
+data |> filter(date >= "2023-01-01", !grepl("OWID", iso_code)) |> 
+  group_by(location) |> summarise(cum_cases = sum(new_cases), cum_death = sum(new_deaths)) |> mutate(cfr = round((cum_death/cum_cases)*100,2)) |> 
+  arrange(-cum_cases) |> top_n(5, cum_cases)
+```
+
+# WHO Data
+## WHO Data Import
+```{r}
+who_data <- read_csv("~/Downloads/mpox cases by country as of 30 November 2023.csv") |> filter(date >= "2023-01-01")
+```
+
+## Mpox cases per region
+```{r}
+region_data <- who_data |> 
+  mutate(region = if_else(iso3 %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"), "ASEAN", if_else(who_region %in% c("South-East Asia Region", "Western Pacific Region", "Eastern Mediterranean Region"), "Asia Oceania", who_region))) |> 
+  group_by(region) |> 
+  summarise(cum_cases = sum(new_confirmed_cases), cum_death = sum(new_deaths))
+region_data
+```
+
+## Mpox cases in ASEAN
+```{r}
+asean_data <- who_data |> 
+  filter(date >= "2023-01-01", iso3 %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS")) |> 
+  group_by(country) |> 
+  summarise(cum_cases = sum(new_confirmed_cases), cum_death = sum(new_deaths))
+asean_data
+```
+
+```{r}
+who_data |> filter(date >= "2023-01-01") |> 
+  group_by(country) |> summarise(cum_cases = sum(new_confirmed_cases), cum_death = sum(new_deaths)) |> mutate(cfr = round((cum_death/cum_cases)*100,2)) |> 
+  arrange(-cum_cases) |> top_n(5, cum_cases)
+```
+
+
+
+# Indicator-Surveillance from Bluedot
+## ASEAN
+```{r}
+covUrl <- paste0("https://developer.bluedot.global/casecounts/indicator-based/?diseaseIds=64&locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2023-01-01&api-version=v1")
+res <- GET(covUrl, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
+covData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> filter(sourceOrgName == "OWID")
+covData |> group_by(locationName) |> summarise(n = sum(totalReportedCases))
+```
+
+## Singapore
+```{r}
+sgpUrl <- paste0("https://developer.bluedot.global/casecounts/indicator-based/?diseaseIds=64&locationIds=1880251&startDate=2023-01-01&api-version=v1")
+res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
+sgpData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> filter(sourceOrgName == "Ministry of Health Singapore")
+sgpData |> summarise(n = sum(totalReportedCases))
+```
+
+## Taiwan
+```{r}
+twUrl <- paste0("https://developer.bluedot.global/casecounts/indicator-based/?diseaseIds=64&locationIds=1668284&startDate=2023-01-01&api-version=v1")
+res <- GET(twUrl, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
+twData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> drop_na(totalReportedCases)
+twData |> summarise(n = sum(totalReportedCases))
+```
+
+# Event-based Surveillance from Bluedot
+## ASEAN
+```{r}
+ebsUrl <- "https://developer.bluedot.global/casecounts/diseases/64?locationIds=1880251,%201605651,%201694008,%201820814,%201733045,%201643084,%201831722,%201327865,%201655842,1562822&startDate=2023-01-01&api-version=v1"
+res <- GET(ebsUrl, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")) |> content()
+ebsData <- enframe(pluck(res, "data")) |> unnest_wider(value)
+ebsData |> group_by(locationName) |> summarise(cases = sum(totalReportedCases), deaths = sum(totalDeaths))
+```
+
+```{r}
+ebsUrl <- paste0("https://developer.bluedot.global/casecounts/diseases/64?startDate=2023-01-01&isAggregated=false&includeSources=true&api-version=v1")
+res <- GET(ebsUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+length_df <- length(res$data)
+ebsNews <- data.frame()
+for(i in 1:length_df){
+  disease_name <- pluck(res, "data", i, "diseaseName")
+  vec <- enframe(pluck(res, "data", i, "sources")) |> unnest_wider(value)
+  vec$name <- disease_name
+  ebsNews <- rbind(ebsNews, vec)
+}
+flextable(ebsNews)
+```
+
+```{r}
+
+```
+

@@ -1,0 +1,112 @@
+---
+title: "hepatitis focus report data"
+output: html_document
+date: "2023-07-05"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load library
+
+```{r library, message=FALSE, warning=FALSE}
+library(tidyverse)
+library(httr)
+library(jsonlite)
+library(flextable)
+```
+
+# Indonesia
+
+```{r}
+inaUrl <- "https://developer.bluedot.global/casecounts/locations/1643084?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
+res <- GET(inaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+inaData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+flextable(inaData)
+```
+
+# Brunei darussalam
+
+```{r}
+brnUrl <- "https://developer.bluedot.global/casecounts/locations/1820814?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
+res <- GET(brnUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+brnData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+flextable(brnData)
+```
+
+# Cambodia
+
+```{r}
+khmUrl <- "https://developer.bluedot.global/casecounts/locations/1831722?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
+res <- GET(khmUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+khmData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+datatable(khmData)
+```
+
+# Lao PDR
+
+```{r}
+laoUrl <- "https://developer.bluedot.global/casecounts/locations/1655842?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
+res <- GET(laoUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+laoData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+flextable(laoData)
+```
+
+# Malaysia
+
+```{r}
+mlyUrl <- "https://developer.bluedot.global/casecounts/locations/1733045?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
+res <- GET(mlyUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+mlyData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+flextable(mlyData)
+```
+
+# Myanmar
+
+```{r}
+myrUrl <- "https://developer.bluedot.global/casecounts/locations/1327865?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
+res <- GET(myrUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+myrData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+flextable(myrData)
+```
+
+# Philippines
+
+```{r}
+phlUrl <- "https://developer.bluedot.global/casecounts/locations/1694008?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
+res <- GET(phlUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
+parse <- content(res)
+phlData <- data.frame(t(sapply(parse$data,c)))
+datatable(phlData)
+```
+
+# Singapore
+
+```{r}
+sgpUrl <- "https://developer.bluedot.global/casecounts/locations/1880251?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
+res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
+parse <- content(res)
+sgpData <- data.frame(t(sapply(parse$data,c)))
+datatable(sgpData)
+```
+
+# Thailand
+
+```{r}
+thaUrl <- "https://developer.bluedot.global/casecounts/locations/1605651?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
+res <- GET(thaUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
+parse <- content(res)
+thaData <- data.frame(t(sapply(parse$data,c)))
+datatable(thaData)
+```
+
+# Vietnam
+
+```{r}
+vnmUrl <- "https://developer.bluedot.global/casecounts/locations/1562822?diseaseIds=32,%2035,%20208&startDate=2020-01&isAggregated=false&includeSources&api-version=v1"
+res <- GET(vnmUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache"))
+parse <- content(res)
+vnmData <- data.frame(t(sapply(parse$data,c)))
+datatable(vnmData)
+```

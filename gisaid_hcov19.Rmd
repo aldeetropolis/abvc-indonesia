@@ -1,0 +1,105 @@
+---
+title: "gisaid_hcov2019"
+author: "Aldilas AN"
+date: "2023-12-22"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(readxl)
+```
+
+# Data import
+
+```{r cars}
+voi <- c("XBB.1.16", "XBB.1.5", "BA.2.75", "CH.1.1", "EG.5", "XBB.1.9.1", "XBB.1.9.2",
+         "XBB.2.3", "B.1.1.529", "B.1.640", "B.1.617.2", "BA.2.86", "JN.1", "^XBB$")
+data <- read_xlsx("GISAID per 19 Desember 2023.xlsx", sheet = "Linelist") |> 
+  filter("Collection date" >= "2023-01-01") |> 
+  mutate(month = month(`Collection date`)) |> 
+  arrange(Country, month) |> 
+  count(Country, month, Lineage) |> 
+  group_by(Country, month) |> 
+  mutate(pct = round(n / sum(n), 2))
+
+data$line <- if_else(grepl("XBB.1.16", data$Lineage), "XBB.1.16+XBB.1.16.*",
+                     if_else(grepl("XBB.1.5", data$Lineage), "XBB.1.5+XBB.1.5.*",
+                             if_else(grepl("BA.2.75", data$Lineage), "BA.2.75+BA.2.75.*",
+                                     if_else(grepl("CH.1.1", data$Lineage), "CH.1.1+CH.1.1.*",
+                                             if_else(grepl("EG.5", data$Lineage), "EG.5+EG.5.*",
+                                                     if_else(grepl("XBB.1.9.1", data$Lineage), "XBB.1.9.1+XBB.1.9.1.*",
+                                                             if_else(grepl("XBB.2.3", data$Lineage), "XBB.2.3+XBB.2.3.*",
+                                                                     if_else(grepl("BA.2.86", data$Lineage), "BA.2.86.*",
+                                                                             if_else(grepl("B.1.640", data$Lineage), "B.1.640+B.1.640.*",
+                                                                                     if_else(grepl("B.1.617.2|AY", data$Lineage), "B.1.617.2+AY*",
+                                                                                             if_else(grepl("B.1.1.529|BA", data$Lineage), "Omicron B.1.1.529+BA.*",
+                                                                                                     if_else(grepl("JN.1", data$Lineage), "JN.1+JN.1.*",
+                                                                                                             if_else(grepl("XBB.1.9.2", data$Lineage), "XBB.1.9.2+XBB.1.9.2.*",
+                                                                                                                     if_else(grepl("XBB", data$Lineage), "XBB", "Others")
+                                                                                                                     )
+                                                                                                             )
+                                                                                                     )
+                                                                                             )
+                                                                                     )
+                                                                             )
+                                                                     )
+                                                             )
+                                                     )
+                                             )
+                                     )
+                             )
+                     )
+```
+
+# Plot Brunei
+
+```{r, echo=FALSE}
+ggplot(filter(data, Country == "Brunei"), aes(x = as.factor(month), y = pct, fill = line)) +
+  geom_bar(stat = "identity", position = "stack")
+```
+
+# Plot Cambodia
+
+```{r, echo=FALSE}
+ggplot(filter(data, Country == "Cambodia"), aes(x = as.factor(month), y = pct, fill = line)) +
+  geom_bar(stat = "identity", position = "stack")
+```
+
+# Plot Indonesia
+
+```{r, echo=FALSE}
+ggplot(filter(data, Country == "Indonesia"), aes(x = as.factor(month), y = pct, fill = line)) +
+  geom_bar(stat = "identity", position = "stack")
+```
+
+# Lao PDR
+```{r}
+ggplot(filter(data, Country == "Laos"), aes(x = as.factor(month), y = pct, fill = line)) +
+  geom_bar(stat = "identity", position = "stack")
+```
+
+# Malaysia
+```{r}
+ggplot(filter(data, Country == "Malaysia"), aes(x = as.factor(month), y = pct, fill = Lineage)) +
+  geom_bar(stat = "identity", position = "stack")
+```
+
+# Myanmar
+```{r}
+ggplot(filter(data, Country == "Myanmar"), aes(x = as.factor(month), y = pct, fill = Lineage)) +
+  geom_bar(stat = "identity", position = "stack")
+```
+
+# Philippines
+```{r}
+ggplot(filter(data, Country == "Philippines"), aes(x = as.factor(month), y = pct, fill = Lineage)) +
+  geom_bar(stat = "identity", position = "stack")
+```
+
+
