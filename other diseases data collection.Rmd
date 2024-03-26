@@ -34,7 +34,6 @@ data <- enframe(pluck(res, "data")) |> unnest_wider(value)
 #View(ams_event_aggr |> select(!c(name, reportedDate, locationName, locationId, latitude, longitude, locationType, sources)))
 ```
 
-
 # Singapore
 ## Indicator-based Surveillance Data from Bluedot
 ```{r cumulative}
