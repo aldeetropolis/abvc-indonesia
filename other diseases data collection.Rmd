@@ -17,13 +17,8 @@ library(kableExtra)
 ```
 
 ```{r setting date and default diseases}
-<<<<<<< HEAD
-startDate <- "2024-03-17"
-endDate <- "2024-03-23"
-=======
 startDate <- "2024-03-24"
 endDate <- "2024-03-30"
->>>>>>> 9c7dc8c (Update other diseases)
 disease <- "15,141,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,110,113,136,212,215,216,224,264,200,41,40,39,37,64,239,47"
 ams <- "1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822"
 country <- "2077456,1814991,1819730,102358,1835841,1668284,290557,2635167,1861060,1821275,289688,337996,1269750,2750405,2186224,286963,1168579,2017370,1227603,1966436,298795,1210997,2921044,130758,99237,248816,1522867,1282028,934292,1282988,6252001,1512440,290291,6251999,4043988,285570,1559582,2088628,1252634,2623032,2205218,660013,3017382,390903,3175395,798544,953987,2510769,2661886,2658434,2782113,2802361,357994,294640,192950,2029969,3144096,935317,1218197,690791"
@@ -31,15 +26,13 @@ country <- "2077456,1814991,1819730,102358,1835841,1668284,290557,2635167,186106
 
 # Disease Event from Bluedot Human Disease and Case API among AMS
 ```{r}
-url <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=", disease, "&subLocationTypes=4&startDate=", startDate, "&endDate=", endDate, "&isAggregated=FALSE&includeSources=TRUE&includeCsv=FALSE&api-version=v1")
-res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+url <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=", "10", "&subLocationTypes=4&startDate=", startDate, "&endDate=", endDate, "&isAggregated=FALSE&includeSources=TRUE&includeCsv=FALSE&api-version=v1")
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")) |> content()
 disease_event <- enframe(pluck(res, "data")) |> unnest_wider(value) |> filter(countryId %in% c(1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822)) |> 
   unnest(minSources) |> unnest_wider(minSources) |> select(!c(maxSources))
 View(disease_event)
 ```
 
-<<<<<<< HEAD
-=======
 # Collect routine MMWR diseases from Bluedot
 ```{r}
 mmwr <- "55,141,10,43,4,53"
@@ -50,7 +43,6 @@ disease_aggr <- enframe(pluck(res, "data")) |> unnest_wider(value) |>
 View(disease_aggr)
 ```
 
->>>>>>> 9c7dc8c (Update other diseases)
 # Singapore
 ## Indicator-based Surveillance Data from Bluedot
 ```{r cumulative}
@@ -77,16 +69,12 @@ flextable(sgpData)
 
 # Other countries (China, ROK, Japan, Taiwan, Hong Kong, Macau, Timor Leste)
 ```{r}
-country <- c(1814991, 1835841, 1861060, 1668284, 1819730, 1821275, 1966436)
-other_event_aggr <- data.frame()
-for (i in country){
-  url <- paste0("https://developer.bluedot.global/casecounts/locations/", i, "?diseaseIds=", disease, "&startDate=", startDate, "&endDate=", endDate, "&isAggregated=true&includeSources=false&api-version=v1")
-  res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
-  data <- enframe(pluck(res, "data")) |> unnest_wider(value)
-  other_event_aggr <- rbind(other_event_aggr, data)
-}
-other_event_aggr <- other_event_aggr |> select(!c(name, reportedDate, locationName, locationId, latitude, longitude, locationType, sources))
-View(other_event_aggr)
+other <- "1814991,1835841,1861060,1668284,1819730,1821275,1966436"
+url <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=", disease, "&locationIds=", other, "&startDate=", startDate, "&endDate=", endDate, "&isAggregated=TRUE&includeSources=FALSE&includeCsv=FALSE&api-version=v1")
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+other_country_aggr <- enframe(pluck(res, "data")) |> unnest_wider(value) |> 
+  select(!c(name, reportedDate, locationId, locationName, latitude, longitude, locationType, minSources, maxSources))
+View(other_country_aggr)
 ```
 
 ```{r}
@@ -94,7 +82,7 @@ url <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=", diseas
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")) |> content()
 ams_ebs <- enframe(pluck(res, "data")) |> unnest_wider(value) |> unnest(minSources) |> 
   unnest_wider(minSources) |> mutate(date = as.Date(publishedDate)) |> 
-  select(date, diseaseName, countryName, sourceTitle, sourceUrl, sourceCategory)
+  select(!c(name, reportedDate, locationId, locationName, latitude, longitude, locationType, minSources, maxSources))
 kbl(ams_ebs) |> kable_styling()
 ```
 
