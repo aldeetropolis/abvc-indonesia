@@ -1,2 +1,2 @@
-case = c(377, 34, 600, 1, 342)
-hist(case, breaks = 3)
+case = c(377, 34, 2500, 3, 514, 42)
+hist(case, breaks = 10)
