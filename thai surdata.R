@@ -1,32 +1,35 @@
 library(curl)
 
 # 2024
-df_link <- "http://doe.moph.go.th/surdata/506wk/y67/d66_1567.pdf"
-curl_download(df_link, "thai surdata/2024_15_df.pdf")
+df_link <- "http://doe.moph.go.th/surdata/506wk/y67/d66_1667.pdf"
+curl_download(df_link, "thai surdata/2024_16_df.pdf")
 
-dhf_link <- "http://doe.moph.go.th/surdata/506wk/y67/d26_1567.pdf"
-curl_download(dhf_link, "thai surdata/2024_15_dhf.pdf")
+dhf_link <- "http://doe.moph.go.th/surdata/506wk/y67/d26_1667.pdf"
+curl_download(dhf_link, "thai surdata/2024_16_dhf.pdf")
 
-dss_link <- "http://doe.moph.go.th/surdata/506wk/y67/d27_1567.pdf"
-curl_download(dss_link, "thai surdata/2024_15_dss.pdf")
+dss_link <- "http://doe.moph.go.th/surdata/506wk/y67/d27_1667.pdf"
+curl_download(dss_link, "thai surdata/2024_16_dss.pdf")
 
-malaria_link <- "http://doe.moph.go.th/surdata/506wk/y67/d30_1567.pdf"
-curl_download(malaria_link, "thai surdata/2024_15_malaria.pdf")
+malaria_link <- "http://doe.moph.go.th/surdata/506wk/y67/d30_1667.pdf"
+curl_download(malaria_link, "thai surdata/2024_16_malaria.pdf")
 
-diph_link <- "http://doe.moph.go.th/surdata/506wk/y67/d23_1567.pdf"
-curl_download(diph_link, "thai surdata/2024_15_diphtheria.pdf")
+diph_link <- "http://doe.moph.go.th/surdata/506wk/y67/d23_1667.pdf"
+curl_download(diph_link, "thai surdata/2024_16_diphtheria.pdf")
 
-measles_link <- "http://doe.moph.go.th/surdata/506wk/y67/d21_1567.pdf"
-curl_download(measles_link, "thai surdata/2024_15_measles.pdf")
+measles_link <- "http://doe.moph.go.th/surdata/506wk/y67/d21_1667.pdf"
+curl_download(measles_link, "thai surdata/2024_16_measles.pdf")
 
-rabies_link <- "http://doe.moph.go.th/surdata/506wk/y67/d42_1567.pdf"
-curl_download(rabies_link, "thai surdata/2024_15_rabies.pdf")
+rabies_link <- "http://doe.moph.go.th/surdata/506wk/y67/d42_1667.pdf"
+curl_download(rabies_link, "thai surdata/2024_16_rabies.pdf")
 
 # 2023
-df_link <- "http://doe.moph.go.th/surdata/506wk/y66/d66_1366.pdf"
-curl_download(df_link, "thai surdata/df_2023.pdf")
 
-link <- "https://www.moh.gov.my/index.php/database_stores/attach_download/337/2517"
-curl_download(link, "malaysia.pdf")
+for (i in 10:53) {
+  url <- paste0("http://doe.moph.go.th/surdata/506wk/y66/d30_", i, "66.pdf")
+  curl_download(url, paste0("thai surdata/2023_", i, "_malaria.pdf"))
+}
+
+link <- "http://doe.moph.go.th/surdata/506wk/y66/d66_5366.pdf"
+curl_download(link, "thai surdata/2023_53_df.pdf")
 
 "https://www.moh.gov.my/index.php/database_stores/attach_download/337/2509"
