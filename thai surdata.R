@@ -1,26 +1,26 @@
 library(curl)
 
 # 2024
-df_link <- "http://doe.moph.go.th/surdata/506wk/y67/d66_1667.pdf"
-curl_download(df_link, "thai surdata/2024_16_df.pdf")
+df_link <- "http://doe.moph.go.th/surdata/506wk/y67/d66_1767.pdf"
+curl_download(df_link, "thai surdata/2024_17_df.pdf")
 
-dhf_link <- "http://doe.moph.go.th/surdata/506wk/y67/d26_1667.pdf"
-curl_download(dhf_link, "thai surdata/2024_16_dhf.pdf")
+dhf_link <- "http://doe.moph.go.th/surdata/506wk/y67/d26_1767.pdf"
+curl_download(dhf_link, "thai surdata/2024_17_dhf.pdf")
 
-dss_link <- "http://doe.moph.go.th/surdata/506wk/y67/d27_1667.pdf"
-curl_download(dss_link, "thai surdata/2024_16_dss.pdf")
+dss_link <- "http://doe.moph.go.th/surdata/506wk/y67/d27_1767.pdf"
+curl_download(dss_link, "thai surdata/2024_17_dss.pdf")
 
-malaria_link <- "http://doe.moph.go.th/surdata/506wk/y67/d30_1667.pdf"
-curl_download(malaria_link, "thai surdata/2024_16_malaria.pdf")
+malaria_link <- "http://doe.moph.go.th/surdata/506wk/y67/d30_1767.pdf"
+curl_download(malaria_link, "thai surdata/2024_17_malaria.pdf")
 
-diph_link <- "http://doe.moph.go.th/surdata/506wk/y67/d23_1667.pdf"
-curl_download(diph_link, "thai surdata/2024_16_diphtheria.pdf")
+diph_link <- "http://doe.moph.go.th/surdata/506wk/y67/d23_1767.pdf"
+curl_download(diph_link, "thai surdata/2024_17_diphtheria.pdf")
 
-measles_link <- "http://doe.moph.go.th/surdata/506wk/y67/d21_1667.pdf"
-curl_download(measles_link, "thai surdata/2024_16_measles.pdf")
+measles_link <- "http://doe.moph.go.th/surdata/506wk/y67/d21_1767.pdf"
+curl_download(measles_link, "thai surdata/2024_17_measles.pdf")
 
-rabies_link <- "http://doe.moph.go.th/surdata/506wk/y67/d42_1667.pdf"
-curl_download(rabies_link, "thai surdata/2024_16_rabies.pdf")
+rabies_link <- "http://doe.moph.go.th/surdata/506wk/y67/d42_1767.pdf"
+curl_download(rabies_link, "thai surdata/2024_17_rabies.pdf")
 
 # 2023
 
