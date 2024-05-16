@@ -3,7 +3,7 @@ library(httr)
 library(jsonlite)
 library(flextable)
 
-data <- read_csv("~/Downloads/FAOSTAT_data_en_11-8-2023.csv")
+data <- read_csv("datafiles/Avian Influenza.csv")
 
 ggplot(data, aes(x = ))
 
