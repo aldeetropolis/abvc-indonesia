@@ -43,19 +43,21 @@ disease_aggr <- enframe(pluck(res, "data")) |> unnest_wider(value) |>
 View(disease_aggr)
 ```
 
-# Singapore
-## Indicator-based Surveillance Data from Bluedot
+# Indicator-based Surveillance Data from Bluedot
 ```{r cumulative}
-sgpUrl <- "https://developer.bluedot.global/casecounts/indicator-based/?locationIds=1880251&startDate=2023-01-01&sourceOrgNames=Ministry%20of%20Health%20Singapore&api-version=v1"
-res <- GET(sgpUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
-sgpData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> 
-  select(diseaseName, totalReportedCases, totalConfirmedCases, totalDeaths) |>
-  arrange(diseaseName) |> group_by(diseaseName) |> 
-  summarise(cases = sum(totalReportedCases),
-            deaths = sum(totalDeaths))
-flextable(sgpData)
-#View(sgpData)
+ind_surv <- function(location, start_date) {
+  url <- paste0("https://developer.bluedot.global/casecounts/indicator-based/?locationIds=", location, "&startDate=", start_date, "&api-version=v1")
+  res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+  data <- enframe(pluck(res, "data")) |> unnest_wider(value)
+  return(data)
+}
 ```
+
+```{r}
+data <- ind_surv(location = "1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822", start_date = "2024-04-01")
+View(data)
+```
+
 
 ```{r weekly}
 sgpUrl <- "https://developer.bluedot.global/casecounts/indicator-based/?locationIds=1880251&startDate=2023-12-03&sourceOrgNames=Ministry%20of%20Health%20Singapore&api-version=v1"
@@ -86,17 +88,27 @@ View(disease_event)
 
 # Function to get data from Bluedot based on diseases among AMS
 ```{r}
-bluedot_cases <- function(code, start_date, end_date){
+bluedot_cases_aggr <- function(code, start_date, end_date){
   url <- paste0("https://developer.bluedot.global/casecounts/diseases/", code, "?locationIds=1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822&startDate=", start_date, "&endDate=", end_date, "&isAggregated=true&api-version=v1")
   res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
   data <- enframe(pluck(res, "data")) |> unnest_wider(value) |> 
     select(diseaseName, locationName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
   return(data)
 }
+
+country_cases <- function(code, country, start_date, end_date){
+  url <- paste0("https://developer.bluedot.global/casecounts/diseases/", code, "?locationIds=", country, "&startDate=", start_date, "&endDate=", end_date, "&isAggregated=false&includeSources=true&api-version=v1")
+  res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+  data <- enframe(pluck(res, "data")) |> unnest_wider(value) |> 
+    select(diseaseName, locationName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths, sources) |> 
+    unnest(sources) |> unnest_wider(sources)
+  return(data)
+}
 ```
 
 ```{r}
-data <- bluedot_cases(code = 64, start_date = "2023-01-01", end_date = "2024-01-09")
+data <- country_cases(code = 141, country = 1643084, start_date = "2024-01-01", end_date = "2024-05-11")
+View(data)
 ```
 
 # Legionellosis
