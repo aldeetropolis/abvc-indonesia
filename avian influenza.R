@@ -3,7 +3,7 @@ library(httr)
 library(jsonlite)
 library(flextable)
 
-data <- read_csv("datafiles/Avian Influenza.csv")
+data <- read_csv("~/Downloads/Avian Influenza.csv")
 
 ggplot(data, aes(x = ))
 
@@ -11,5 +11,4 @@ h5n1Url <- "https://developer.bluedot.global/casecounts/diseases/6?locationIds=1
 res <- GET(avianUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
 avianData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
 flextable(avianData)
-
 
