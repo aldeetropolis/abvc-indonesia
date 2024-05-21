@@ -1,26 +1,30 @@
 library(curl)
 
 # 2024
-df_link <- "http://doe.moph.go.th/surdata/506wk/y67/d66_1767.pdf"
-curl_download(df_link, "thai surdata/2024_17_df.pdf")
+thai_surdata <- function(epiweek) {
+  df_link <- paste0("http://doe.moph.go.th/surdata/506wk/y67/d66_", epiweek, "67.pdf")
+  curl_download(df_link, paste0("thai surdata/2024_", epiweek, "_df.pdf"))
+  
+  dhf_link <- paste0("http://doe.moph.go.th/surdata/506wk/y67/d26_", epiweek, "67.pdf")
+  curl_download(dhf_link, paste0("thai surdata/2024_", epiweek, "_dhf.pdf"))
+  
+  dss_link <- paste0("http://doe.moph.go.th/surdata/506wk/y67/d27_", epiweek, "67.pdf")
+  curl_download(dss_link, paste0("thai surdata/2024_", epiweek, "_dss.pdf"))
+  
+  malaria_link <- paste0("http://doe.moph.go.th/surdata/506wk/y67/d30_", epiweek, "67.pdf")
+  curl_download(malaria_link, paste0("thai surdata/2024_", epiweek, "_malaria.pdf"))
+  
+  diph_link <- paste0("http://doe.moph.go.th/surdata/506wk/y67/d23_", epiweek, "67.pdf")
+  curl_download(diph_link, paste0("thai surdata/2024_", epiweek, "_diphtheria.pdf"))
+  
+  measles_link <- paste0("http://doe.moph.go.th/surdata/506wk/y67/d21_", epiweek, "67.pdf")
+  curl_download(measles_link, paste0("thai surdata/2024_", epiweek, "_measles.pdf"))
+  
+  rabies_link <- paste0("http://doe.moph.go.th/surdata/506wk/y67/d42_", epiweek, "67.pdf")
+  curl_download(rabies_link, paste0("thai surdata/2024_", epiweek, "_rabies.pdf"))
+}
 
-dhf_link <- "http://doe.moph.go.th/surdata/506wk/y67/d26_1767.pdf"
-curl_download(dhf_link, "thai surdata/2024_17_dhf.pdf")
-
-dss_link <- "http://doe.moph.go.th/surdata/506wk/y67/d27_1767.pdf"
-curl_download(dss_link, "thai surdata/2024_17_dss.pdf")
-
-malaria_link <- "http://doe.moph.go.th/surdata/506wk/y67/d30_1767.pdf"
-curl_download(malaria_link, "thai surdata/2024_17_malaria.pdf")
-
-diph_link <- "http://doe.moph.go.th/surdata/506wk/y67/d23_1767.pdf"
-curl_download(diph_link, "thai surdata/2024_17_diphtheria.pdf")
-
-measles_link <- "http://doe.moph.go.th/surdata/506wk/y67/d21_1767.pdf"
-curl_download(measles_link, "thai surdata/2024_17_measles.pdf")
-
-rabies_link <- "http://doe.moph.go.th/surdata/506wk/y67/d42_1767.pdf"
-curl_download(rabies_link, "thai surdata/2024_17_rabies.pdf")
+thai_surdata(18)
 
 # 2023
 
