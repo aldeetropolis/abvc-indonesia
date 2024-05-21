@@ -16,7 +16,7 @@ disease_search <- function(string) {
   return(data)
 }
 
-disease_search("avian")
+disease_search("polio")
 
 # Locations ID
 ## List all location and number of population (sub-national level)

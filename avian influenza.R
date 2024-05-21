@@ -12,3 +12,6 @@ res <- GET(avianUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a72
 avianData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> select(diseaseName, countryName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
 flextable(avianData)
 
+data_reg <- data |> group_by(Region, `report date`) |> 
+  summarize(n_affected = sum(`Humans Affected`), n_deaths = sum(`Human Deaths`)) |> 
+  filter(!is.na(n_affected))
