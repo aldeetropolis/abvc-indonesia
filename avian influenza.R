@@ -14,4 +14,12 @@ flextable(avianData)
 
 data_reg <- data |> group_by(Region, `report date`) |> 
   summarize(n_affected = sum(`Humans Affected`), n_deaths = sum(`Human Deaths`)) |> 
+  filter(!is.na(n_affected), Region == "Asia")
+
+data_asia <- data |> filter(Region == "Asia") |> group_by(Country, `report date`) |> 
+  summarise(n_affected = sum(`Humans Affected`), n_deaths = sum(`Human Deaths`)) |> 
   filter(!is.na(n_affected))
+
+ggplot(data_asia, aes(x = `report date`, y = n_affected, fill = Country)) + 
+  geom_bar(stat = "identity") +
+  geom_text(aes(label = Country))
