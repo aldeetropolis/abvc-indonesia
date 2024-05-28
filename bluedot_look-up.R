@@ -16,7 +16,7 @@ disease_search <- function(string) {
   return(data)
 }
 
-disease_search("malaria")
+disease_search("diphtheria")
 
 # Locations ID
 ## List all location and number of population (sub-national level)

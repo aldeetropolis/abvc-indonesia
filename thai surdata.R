@@ -24,7 +24,7 @@ thai_surdata <- function(epiweek) {
   curl_download(rabies_link, paste0("thai surdata/2024_", epiweek, "_rabies.pdf"))
 }
 
-thai_surdata(18)
+thai_surdata(19)
 
 # 2023
 
