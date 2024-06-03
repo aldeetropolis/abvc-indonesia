@@ -1,6 +1,7 @@
 library(tidyverse)
 library(httr)
 library(jsonlite)
+library(curl)
 
 # Disease codes
 ## List all disease codes
@@ -16,7 +17,7 @@ disease_search <- function(string) {
   return(data)
 }
 
-disease_search("diphtheria")
+disease_search("avian influenza")
 
 # Locations ID
 ## List all location and number of population (sub-national level)
