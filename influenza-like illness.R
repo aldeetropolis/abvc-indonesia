@@ -133,5 +133,11 @@ highchart(type = "stock") |>
   hc_add_series(data = iliAsean, yAxis = 3, hcaes(x = mmwr_weekstartdate, y = n_sari), type = "line") |> 
   hc_add_yAxis(title = list(text = "SARI"), relative = 1)
 
-# Influenza data in Indonesia
+# Influenza data from FluNet
+fluNet_link <- "https://xmart-api-public.who.int/FLUMART/VIW_FNT?$format=csv"
+curl_download(fluNet_link, "files/FluNet.csv")
+fluData <- read_csv("files/FluNet.csv") |> rename_with(tolower)
+fluIdn <- fluData |> filter(country_code == "IDN", mmwr_year >= 2021) |> 
+  group_by(mmwr_weekstartdate) |> summarise(n_ili = sum(outpatients, na.rm = TRUE), n_sari = sum(inpatients, na.rm = TRUE))
+#iliIdn_ts <- as.xts(iliIdn)
 
