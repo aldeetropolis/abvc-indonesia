@@ -24,7 +24,7 @@ res <- GET(fluUrl, add_headers("Ocp-Apim-Subscription-Key" = "3f8e179c7c584514aa
 fluData <- enframe(pluck(res, "data")) |> unnest_wider(value) |> mutate(date = as.Date(reportedDate))
 
 fluAsean <- fluData |> 
-  filter(date >= "2021-01-01") |> 
+  filter(date >= "2022-01-01") |> 
   mutate(date = as.Date(reportedDate)) |> 
   group_by(date) |> 
   summarise(inf_a = sum(totalPositiveSamplesA, na.rm = TRUE),
@@ -38,7 +38,15 @@ fluCountry <- fluData |>
   summarise(inf_a = sum(totalPositiveSamplesA, na.rm = TRUE),
             inf_b = sum(totalPositiveSamplesB), na.rm = TRUE,
             inf_tot = sum(totalPositiveSamples, na.rm = TRUE)) |> 
-  pivot_longer(cols = c(inf_a, inf_b), names_to = "type", values_to = "n")
+  pivot_longer(cols = c(inf_a, inf_b), names_to = "type", values_to = "n") |> 
+  ungroup()
+
+fluIndonesia <- fluCountry |> 
+  filter(countryName == "Indonesia", 
+         date >= "2022-01-01") |> 
+  group_by(type) |> 
+  mutate(ma = slider::slide_dbl(n, mean, .before = 7, ,after = 0))
+  
 
 # df <- data |> 
 #   filter(country_code %in% c("BRN", "KHM", "IDN", "LAO", "PHL", "THA", "VNM", "MMR", "SGP", "MYS"),
@@ -69,6 +77,15 @@ highchart(type = "stock") |>
   hc_add_series(data = fluAsean, yAxis = 1, type = 'line',
                 hcaes(x = date, y = inf_tot)) |> 
   hc_add_yAxis(title = list(text = "Influenza"), relative = 1)
+
+# Highchart for Influenza data Indonesia
+highchart(type = "stock") |> 
+  hc_add_series(data = fluIndonesia, type = 'line',
+                hcaes(x = date, y = inf_tot)) |> 
+  hc_add_yAxis(title = list(text = "Influenza"), relative = 1)
+
+ggplot(data = fluIndonesia, aes(x = date, y = ma, color = type)) +
+  geom_line(size = 0.7)
 
 # |> 
 #   hc_xAxis(dateTimeLabelFormats = list(month = "%b '%y"), type = "datetime")
@@ -115,3 +132,6 @@ highchart(type = "stock") |>
   hc_add_yAxis(title = list(text = "ILI"), relative = 1) |> 
   hc_add_series(data = iliAsean, yAxis = 3, hcaes(x = mmwr_weekstartdate, y = n_sari), type = "line") |> 
   hc_add_yAxis(title = list(text = "SARI"), relative = 1)
+
+# Influenza data in Indonesia
+
