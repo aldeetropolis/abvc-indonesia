@@ -25,7 +25,7 @@ write_xlsx(df_unique, "list of disease and country priority.xlsx")
 url <- "https://developer.bluedot.global/travel/air/international[?originLocationIds][&destinationLocationIds][&originAggregationType][&destinationAggregationType][&startDate][&endDate][&includePortOfExit][&includeLastStopBeforeEntry][&includePortOfEntry][&includeCsv]&api-version=v1"
 
 # Direct Flight Seating from Airtport to Airport
-https://developer.bluedot.global/travel-forecasted/air-direct-capacity/airport/origin/{originLocationId}/destination/{destinationLocationId}[?startDate][&endDate][&includeRouteDetails][&includeCsv]&api-version=v1
+"https://developer.bluedot.global/travel-forecasted/air-direct-capacity/airport/origin/{originLocationId}/destination/{destinationLocationId}[?startDate][&endDate][&includeRouteDetails][&includeCsv]&api-version=v1"
 
 # Direct Flight Seating from Country to Country
 "https://developer.bluedot.global/travel-forecasted/air-direct-capacity/country/origin/{originLocationId}/destination/{destinationLocationId}[?startDate][&endDate][&includeCsv]&api-version=v1"

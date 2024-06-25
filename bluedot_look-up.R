@@ -59,3 +59,5 @@ airport_info("CGK")
 url <-  "https://developer.bluedot.global/daas/lookup/articles/themes/?api-version=v1"
 res <- GET(url, add_headers("Cache-Control" = "no-cache", "Ocp-Apim-Subscription-Key" = "ae0e017fd9b9419a927a00f3f1524edb")) |> content()
 newsfeeds_theme <- enframe(pluck(res, "data")) |> unnest_wider(value) |> unnest(tags)
+
+# 
