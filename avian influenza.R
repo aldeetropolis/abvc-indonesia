@@ -2,10 +2,14 @@ library(tidyverse)
 library(httr)
 library(jsonlite)
 library(flextable)
-library(writexl)
 library(lubridate)
+library(leaflet)
 
-data <- read_csv("~/Downloads/Avian Influenza.csv")
+
+data <- read_csv("files/Avian Influenza.csv")
+colnames(data) <- c("id", "disease", "serotype", "lat", "long", "location", "country", "region", "observation_date", 
+                    "report_date", "species", "diag_source", "human_affected", "human_death", "diag_status")
+globe_data <- data |> replace_na(list(human_affected = FALSE, human_death = FALSE))
 
 avianUrl <- "https://developer.bluedot.global/casecounts/?diseaseIds=6&subLocationTypes=4&startDate=2015-01-01&isAggregated=false&includeSources=true&api-version=v1"
 res <- GET(avianUrl, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
@@ -28,5 +32,3 @@ data_global <- avianData |> mutate(year = year(reportedDate)) |>
 ggplot(data_asia, aes(x = `report date`, y = n_affected, fill = Country)) + 
   geom_bar(stat = "identity") +
   geom_text(aes(label = Country))
-
-write_xlsx(data_global, "data avian influenza H5N1 global Bluedot 2020-2024.xlsx")
