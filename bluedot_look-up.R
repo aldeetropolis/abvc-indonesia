@@ -17,7 +17,7 @@ disease_search <- function(string) {
   return(data)
 }
 
-disease_search("avian influenza")
+disease_search("oropouche")
 
 # Locations ID
 ## List all location and number of population (sub-national level)

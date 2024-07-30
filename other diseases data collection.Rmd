@@ -17,8 +17,8 @@ library(kableExtra)
 ```
 
 ```{r setting date and default diseases}
-startDate <- "2024-06-16"
-endDate <- "2024-06-22"
+startDate <- "2024-07-21"
+endDate <- "2024-07-27"
 disease <- "15,141,83,164,84,166,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,110,113,136,212,215,216,224,264,200,41,40,39,37,64,239,47"
 ams <- "1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822"
 country <- "2077456,1814991,1819730,102358,1835841,1668284,290557,2635167,1861060,1821275,289688,337996,1269750,2750405,2186224,286963,1168579,2017370,1227603,1966436,298795,1210997,2921044,130758,99237,248816,1522867,1282028,934292,1282988,6252001,1512440,290291,6251999,4043988,285570,1559582,2088628,1252634,2623032,2205218,660013,3017382,390903,3175395,798544,953987,2510769,2661886,2658434,2782113,2802361,357994,294640,192950,2029969,3144096,935317,1218197,690791"
@@ -114,6 +114,26 @@ country_cases <- function(code, country, start_date, end_date){
   return(data)
 }
 ```
+
+```{r}
+bluedot_cases_global <- function(code){
+  url <- paste0("https://developer.bluedot.global/casecounts/diseases/", code, "?subLocationTypes=6", "&isAggregated=true&api-version=v1")
+  res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+  data <- enframe(pluck(res, "data")) |> unnest_wider(value) |> 
+    select(diseaseName, locationName, totalReportedCases, totalConfirmedCases, totalSuspectedCases, totalDeaths)
+  return(data)
+}
+```
+
+# Oropouche
+```{r}
+orov <- bluedot_cases_global(90) |> select(locationName, totalReportedCases, totalDeaths) |> pivot_longer(cols = c("totalReportedCases", "totalDeaths"), names_to = "report", values_to = "value")
+```
+
+```{r}
+ggplot(orov, aes(x = locationName, y = value, fill = report)) + geom_col(position = "dodge") + geom_text(aes(label = value))
+```
+
 
 ```{r}
 data <- country_cases(code = 141, country = 1643084, start_date = "2024-01-01", end_date = "2024-05-11")

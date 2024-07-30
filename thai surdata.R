@@ -34,6 +34,6 @@ for (i in 10:53) {
 }
 
 link <- "http://doe.moph.go.th/surdata/506wk/y66/d66_5366.pdf"
-curl_download(link, "thai surdata/2023_53_df.pdf")
+curl_download(link, "~/thai surdata/2023_53_df.pdf")
 
 "https://www.moh.gov.my/index.php/database_stores/attach_download/337/2509"
