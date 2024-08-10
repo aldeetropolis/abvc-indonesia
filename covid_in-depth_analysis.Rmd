@@ -21,6 +21,7 @@ library(jsonlite)
 ```
 
 # Dataset
+
 ```{r data OWID}
 # owid_url <- "https://raw.githubusercontent.com/owid/covid-19-data/master/public/data/owid-covid-data.csv"
 # download.file(owid_url, "owid-covid-data.csv")
@@ -89,6 +90,7 @@ data_gisaid_lineage$line <- if_else(grepl("XBB.1.16", data_gisaid_lineage$lineag
 ```
 
 # ASEAN Region
+
 ```{r variant bar}
 asean_countries <- c("Brunei", "Cambodia", "Indonesia", "Laos", "Malaysia", "Myanmar", "Philippines", "Singapore", "Thailand", "Vietnam")
 asean_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country %in% asean_countries) |> 
@@ -103,6 +105,7 @@ ggplot(asean_variant, aes(month, pct, fill = variant)) +
   theme_prism() + theme(legend.position = "bottom") + xlab(element_blank()) +
   ylab("Submission Rate (%)")
 ```
+
 ```{r lineage bar}
 asean_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country %in% asean_countries) |> 
   mutate(month = floor_date(as.Date(date), 'month')) |> 
@@ -138,7 +141,9 @@ jpeg("asean variant bar plot Dec23.jpeg", units="px", width=4000, height=2250, r
 asean_lineage_plot
 dev.off()
 ```
+
 # Brunei
+
 ```{r total Case and death}
 data_brn <- data_owid |> filter(iso_code == "BRN", date >= "2023-01-01") |> 
   mutate(date = as.Date(date, "%Y-%m-%d"))
@@ -212,7 +217,9 @@ jpeg("Brunei Darussalam variant bar plot Dec23.jpeg", units="px", width=4000, he
 brn_lineage_plot
 dev.off()
 ```
+
 # Cambodia
+
 ```{r case and death}
 data_khm <- data_owid |> filter(iso_code == "KHM", date >= "2023-01-01")
 khm <- highchart() |> 
@@ -273,6 +280,7 @@ dev.off()
 ```
 
 # Indonesia
+
 ```{r total case and death}
 data_idn <- data_owid |> filter(iso_code == "IDN", date >= "2023-01-01")
 idn <- highchart() |> 
@@ -328,6 +336,7 @@ idn_lineage_plot <- ggplot(idn_lineage, aes(month, pct, fill = line)) +
   ylab("Submission Rate (%)") + xlab(element_blank())
 idn_lineage_plot
 ```
+
 ```{r hospitalised}
 data_idn_hosp <- readxl::read_xlsx("data hospitalisasi covid indonesia 2023.xlsx")
 idn_lineage <- idn_lineage |> filter(month >= "2023-11-01")
@@ -362,6 +371,7 @@ dev.off()
 ```
 
 # Lao PDR
+
 ```{r cases and death}
 data_lao <- data_owid |> filter(iso_code == "LAO", date >= "2023-01-01")
 highchart() |> 
@@ -411,6 +421,7 @@ dev.off()
 ```
 
 # Malaysia
+
 ```{r transform data from OWID}
 data_my_hosp <- data_owid |> 
   filter(iso_code == "MYS") |>
@@ -455,6 +466,7 @@ ggplot(mys_variant, aes(month, pct, fill = variant)) +
   scale_x_date(date_breaks = "1 month", date_labels = "%B") +
   theme_prism() + theme(legend.position = "bottom")
 ```
+
 ```{r lineage}
 mys_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Malaysia") |> 
   mutate(month = floor_date(as.Date(date), 'month')) |> 
@@ -469,6 +481,7 @@ mys_lineage_plot <- ggplot(mys_lineage, aes(month, pct, fill = line)) +
   ylab("Submission Rate (%)") + xlab(element_blank())
 mys_lineage_plot
 ```
+
 ```{r join between hospitalised and variant data using hchart}
 data_my_hosp <- data_my_hosp |> 
   filter(variable %in% c("hosp_patients", "icu_patients"),
@@ -495,6 +508,7 @@ jpeg("Malaysia PDR variant bar plot Dec23.jpeg", units="px", width=4000, height=
 mys_lineage_plot
 dev.off()
 ```
+
 ```{r export as jpeg for hchart object}
 htmlwidgets::saveWidget(widget = mys_hosp_lineage, file = "mys_hosp_lineage.html")
 getwd()
@@ -505,6 +519,7 @@ if(dev.cur() > 1) dev.off()
 ```
 
 # Myanmar
+
 ```{r variant}
 mmr_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Myanmar") |> 
   mutate(month = floor_date(as.Date(date), 'month'),
@@ -530,6 +545,7 @@ dev.off()
 ```
 
 # Philippines
+
 ```{r case and death}
 data_phl <- data_who |> filter(Country_code == "PH", Date_reported >= "2023-01-01")
 highchart() |> 
@@ -582,6 +598,7 @@ dev.off()
 ```
 
 # Singapore
+
 ```{r hospitalization and vaccination data from https://data.gov.sg}
 data_sg_vacc <- read_csv("ProgressofCOVID19vaccination.csv") |> 
   mutate(epi_week = epiweek(vacc_date), 
@@ -674,6 +691,7 @@ if(dev.cur() > 1) dev.off()
 ```
 
 # Thailand
+
 ```{r variant}
 tha_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Thailand") |> 
   mutate(month = floor_date(as.Date(date), 'month')) |> 
@@ -686,6 +704,7 @@ ggplot(tha_variant, aes(month, pct, fill = variant)) +
   scale_x_date(date_breaks = "1 month", date_labels = "%B") +
   theme_prism() + theme(legend.position = "bottom")
 ```
+
 ```{r lineage}
 tha_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Thailand") |> 
   mutate(month = floor_date(as.Date(date), 'month')) |> 
@@ -700,6 +719,7 @@ tha_lineage_plot <- ggplot(tha_lineage, aes(month, pct, fill = line)) +
   xlab(element_blank())
 tha_lineage_plot
 ```
+
 ```{r export variant plot as jpeg}
 jpeg("Thailand PDR variant bar plot Dec23.jpeg", units="px", width=4000, height=2250, res=300)
 tha_lineage_plot
@@ -707,6 +727,7 @@ dev.off()
 ```
 
 # Vietnam
+
 ```{r variant}
 vnm_variant <- data_gisaid_variant |> filter(date >= "2023-01-01", country == "Vietnam") |> 
   mutate(month = floor_date(as.Date(date), 'month'),
@@ -724,6 +745,7 @@ vnm_variant_plot <- ggplot(vnm_variant, aes(month, pct, fill = line)) +
   xlab(element_blank())
 vnm_variant_plot
 ```
+
 ```{r lineage}
 vnm_lineage <- data_gisaid_lineage |> filter(date >= "2023-01-01", country == "Vietnam") |> 
   mutate(month = floor_date(as.Date(date), 'month')) |> 
@@ -736,6 +758,7 @@ ggplot(vnm_lineage, aes(month, pct, fill = line)) +
   scale_x_date(date_breaks = "1 month", date_labels = "%B") +
   theme_prism() + theme(legend.position = "bottom")
 ```
+
 ```{r export variant as jpeg}
 jpeg("Vietnam PDR variant bar plot Dec23.jpeg", units="px", width=4000, height=2250, res=300)
 vnm_variant_plot
@@ -743,6 +766,7 @@ dev.off()
 ```
 
 # Export Plot
+
 ```{r}
 jpeg("Thailand PDR variant bar plot Dec23.jpeg", units="px", width=4000, height=2250, res=300)
 tha_lineage_plot
@@ -806,10 +830,9 @@ ams_variant_plot <- ggplot(data_ams_variant, aes(month, pct, fill = line)) +
   xlab(element_blank()) + facet_wrap(vars(country), nrow = 5, ncol = 2)
 ams_variant_plot
 ```
+
 ```{r}
 jpeg("all ams variant.jpeg", units = "px", width = 4000, height = 3000, res = 300)
 ams_variant_plot
 dev.off()
 ```
-
-
