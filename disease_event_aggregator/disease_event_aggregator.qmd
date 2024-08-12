@@ -34,6 +34,40 @@ actionButton("run_1", "Update Data")
 htmlOutput("table_newsfeed")
 ```
 
+# Human Disease Case & Death
+## Row
+### {.sidebar}
+```{r}
+selectInput("country_2", "Pilih region:", 
+            choices = c("ASEAN" = ams, "Other country" = other_country))
+br()
+dateInput("start_date_2", "Start Date:")
+br()
+actionButton("run_2", "Update Data")
+```
+
+### Column
+```{r}
+htmlOutput("table_ebs")
+```
+
+# Disease Events Assessments
+## Row
+### {.sidebar}
+```{r}
+selectInput("country_3", "Pilih region:", 
+            choices = c("ASEAN" = ams, "Other country" = other_country))
+br()
+dateInput("start_date_3", "Start Date:")
+br()
+actionButton("run_3", "Update Data")
+```
+
+### Column
+```{r}
+htmlOutput("table_event")
+```
+
 ```{r}
 #| context: server
 disease <- "15,141,83,164,84,166,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,110,113,136,212,215,216,224,264,200,41,40,39,37,64,239,47"
@@ -45,8 +79,34 @@ disease <- "15,141,83,164,84,166,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,
     res1 <- content(GET(url1, add_headers("Ocp-Apim-Subscription-Key" = "ae0e017fd9b9419a927a00f3f1524edb", "Cache-Control" = "no-cache")))
     data1 <- enframe(pluck(res1, "data")) |> unnest_wider(value) |> rowwise() %>% 
       mutate(across(where(is.list),
-                    ~paste0(.,collapse = ", ")))
+                    ~paste0(.,collapse = ", "))) |> 
+      select(sourceUrl, sourceName, publishedTimestamp, articleHeadline, articleHeadlineTranslated, diseases, locations, affectedCategories, articleSummary, tags)
     return(data1)
   })
+  data2 <- eventReactive(input$run_2, {
+    # Get data from Human Disease Case & Death API
+    varCountry <- input$country_2
+    startDate <- input$start_date_2
+    url2 <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=", disease, "&locationIds=", varCountry, "&subLocationTypes=6&startDate=", startDate, "&isAggregated=false&includeSources=true&api-version=v1")
+    res2 <- content(GET(url2, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")))
+    data2 <- enframe(pluck(res2, "data")) |> unnest_wider(value) |> unnest(minSources) |> 
+      unnest_wider(minSources) |> mutate(date = as.Date(publishedDate)) |> 
+      select(date, diseaseName, countryName, sourceTitle, sourceUrl, sourceCategory)
+    return(data2)
+    })
+  data3 <- eventReactive(input$run_3, {
+    # Get data from Disease Events Assessments
+    varCountry <- input$country_3
+    startDate <- input$start_date_3
+    url3 <- paste0("https://developer.bluedot.global/assessments/?diseaseIds=", disease, "&locationIds=", varCountry, "&startDate=", startDate, "&formatWithHtml=true&includeCsv=false&api-version=v1")
+    res3 <- content(GET(url3, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")))
+    data3 <- enframe(pluck(res3, "data")) |> unnest_wider(value) |> rowwise() %>% 
+      mutate(across(where(is.list),
+                    ~paste0(.,collapse = ", "))) |> 
+      select(eventTitle, date, description, followUp, diseases, species, location, concernLevel, concernDescription, sourceConfidenceLevel, sourceConfidenceDescription, sources)
+    return(data3)
+  })
   output$table_newsfeed <- renderText(data1() |> mutate(sourceUrl = paste0("<a href='", sourceUrl, "'target='blank_'>Full text</a>")) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed"), full_width = FALSE) |> column_spec(12, width = "30em"))
+  output$table_ebs <- renderText(data2() |> mutate(sourceUrl = cell_spec("Full text", "html", link = sourceUrl)) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed")))
+  output$table_event <- renderText(data3() |> mutate(sources = paste0("<a href='", sources, "'target='blank_'>Full text</a>")) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed"), full_width = FALSE))
 ```
