@@ -60,4 +60,19 @@ url <-  "https://developer.bluedot.global/daas/lookup/articles/themes/?api-versi
 res <- GET(url, add_headers("Cache-Control" = "no-cache", "Ocp-Apim-Subscription-Key" = "ae0e017fd9b9419a927a00f3f1524edb")) |> content()
 newsfeeds_theme <- enframe(pluck(res, "data")) |> unnest_wider(value) |> unnest(tags)
 
-# 
+# Disease Knowledge
+url <- https://developer.bluedot.global/diseases/[?diseaseIds][&includeDiseaseOverview][&includeAgentProperties][&includeCsv]&api-version=v1
+
+disease_knowledge <- function(disease) {
+  url <- paste0("https://developer.bluedot.global/diseases/?diseaseIds=", disease, "&includeDiseaseOverview=true&includeAgentProperties=true&includeCsv=false&api-version=v1")
+  res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+  data <- enframe(pluck(res, "data")) |> unnest_wider(value)
+  return(data)
+}
+
+covid <- disease_knowledge(12)
+flextable::flextable(covid)
+
+url <- paste0("https://developer.bluedot.global/diseases/?includeDiseaseOverview=true&includeAgentProperties=true&includeCsv=false&api-version=v1")
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
+data <- enframe(pluck(res, "data")) |> unnest_wider(value)

@@ -82,6 +82,18 @@ actionButton("run_4", "Update Data")
 htmlOutput("table_research")
 ```
 
+# Disease Knowledge
+## Row
+### {.sidebar}
+```{r}
+input()
+```
+### Column
+#### Row
+```{r}
+
+```
+
 ```{r}
 #| context: server
 disease <- "15,141,83,164,84,166,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,110,113,136,212,215,216,224,264,200,41,40,39,37,64,239,47"
