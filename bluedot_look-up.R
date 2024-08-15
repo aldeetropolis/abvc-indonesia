@@ -17,7 +17,7 @@ disease_search <- function(string) {
   return(data)
 }
 
-disease_search("oropouche")
+disease_search("mpox")
 
 # Locations ID
 ## List all location and number of population (sub-national level)
@@ -33,7 +33,7 @@ location_search <- function(country, level) {
   return(data)
 }
 
-location_search(country = "indonesia", level = 6)
+location_search(country = "congo", level = 6)
 
 # Airport code search
 airport_search <- function(locationId) {
