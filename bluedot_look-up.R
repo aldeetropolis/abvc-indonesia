@@ -33,7 +33,7 @@ location_search <- function(country, level) {
   return(data)
 }
 
-location_search(country = "congo", level = 6)
+location_search(country = "indonesia", level = 6)
 
 # Airport code search
 airport_search <- function(locationId) {

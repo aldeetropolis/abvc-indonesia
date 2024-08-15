@@ -11,6 +11,7 @@ library(jsonlite)
 library(tidyverse)
 library(kableExtra)
 library(knitr)
+library(shiny)
 
 other_country <- "2077456,1814991,1819730,102358,1835841,1668284,290557,2635167,1861060,1821275,289688,337996,1269750,2750405,2186224,286963,1168579,2017370,1227603,1966436,298795,1210997,2921044,130758,99237,248816,1522867,1282028,934292,1282988,6252001,1512440,290291,6251999,4043988,285570,1559582,2088628,1252634,2623032,2205218,660013,3017382,390903,3175395,798544,953987,2510769,2661886,2658434,2782113,2802361,357994,294640,192950,2029969,3144096,935317,1218197,690791"
 ams <- "1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822"
@@ -21,7 +22,7 @@ mpox_pull <- function() {
   return(data)
 }
 df_mpox <- mpox_pull()
-location <- df_mpox[[locationName]]
+location <- df_mpox$locationName
 ```
 
 
@@ -107,18 +108,21 @@ htmlOutput("table_mpox")
 ```{r}
 #| context: server
 disease <- "15,141,83,164,84,166,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,110,113,136,212,215,216,224,264,200,41,40,39,37,64,239,47"
-  data1 <- eventReactive(input$run_1, {
-    # Get data from Newsfeed API
-    varCountry <- input$country_1
-    startDate <- input$start_date_1
-    url1 <- paste0("https://developer.bluedot.global/daas/articles/infectious-diseases/?startDate=", startDate, "&locationIds=", varCountry, "&includeBody=false&includeDuplicates=false&excludeArticlesWithoutEvents=true&limit=1000&format=json&api-version=v1")
-    res1 <- content(GET(url1, add_headers("Ocp-Apim-Subscription-Key" = "ae0e017fd9b9419a927a00f3f1524edb", "Cache-Control" = "no-cache")))
-    data1 <- enframe(pluck(res1, "data")) |> unnest_wider(value) |> 
+data1 <- eventReactive(input$run_1, {
+  # Get data from Newsfeed API
+  varCountry <- input$country_1
+  startDate <- input$start_date_1
+  bd_newsfeed <- function() {
+    url <- paste0("https://developer.bluedot.global/daas/articles/infectious-diseases/?startDate=", startDate, "&locationIds=", varCountry, "&includeBody=false&includeDuplicates=false&excludeArticlesWithoutEvents=true&limit=1000&format=json&api-version=v1")
+    res <- content(GET(url, add_headers("Ocp-Apim-Subscription-Key" = "ae0e017fd9b9419a927a00f3f1524edb", "Cache-Control" = "no-cache")))
+    data <- enframe(pluck(res, "data")) |> unnest_wider(value) |> 
       rowwise() |> 
       mutate(across(where(is.list),
                     ~paste0(.,collapse = ", "))) |> 
       filter(!grepl("scientific research", tags))
-    return(data1)
+  }
+  data1 <- bd_newsfeed()
+  return(data1)
   })
   data2 <- eventReactive(input$run_2, {
     # Get data from Human Disease Case & Death API
@@ -156,12 +160,14 @@ disease <- "15,141,83,164,84,166,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,
     return(data4)
     
     })
-  data5 <- reactive(input$country_5, {
-    
+  data5 <- reactive({
+    data <- df_mpox |> filter(locationName == input$country_5)
+    return(data)
   })
   
   output$table_newsfeed <- renderText(data1() |> mutate(sourceUrl = paste0("<a href='", sourceUrl, "'target='blank_'>Full text</a>")) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed"), full_width = FALSE) |> column_spec(12, width = "30em"))
   output$table_ebs <- renderText(data2() |> mutate(sourceUrl = cell_spec("Full text", "html", link = sourceUrl)) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed")))
   output$table_event <- renderText(data3() |> mutate(sources = paste0("<a href='", sources, "'target='blank_'>Full text</a>")) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed"), full_width = FALSE))
   output$table_research <- renderText(data4() |> mutate(sourceUrl = paste0("<a href='", sourceUrl, "'target='blank_'>Full text</a>")) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed"), full_width = FALSE) |> column_spec(12, width = "30em"))
+  output$table_mpox <- renderText(data5())
 ```
