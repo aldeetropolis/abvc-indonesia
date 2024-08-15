@@ -14,6 +14,14 @@ library(knitr)
 
 other_country <- "2077456,1814991,1819730,102358,1835841,1668284,290557,2635167,1861060,1821275,289688,337996,1269750,2750405,2186224,286963,1168579,2017370,1227603,1966436,298795,1210997,2921044,130758,99237,248816,1522867,1282028,934292,1282988,6252001,1512440,290291,6251999,4043988,285570,1559582,2088628,1252634,2623032,2205218,660013,3017382,390903,3175395,798544,953987,2510769,2661886,2658434,2782113,2802361,357994,294640,192950,2029969,3144096,935317,1218197,690791"
 ams <- "1880251,1605651,1694008,1820814,1733045,1643084,1831722,1327865,1655842,1562822"
+mpox_pull <- function() {
+  url <- "https://developer.bluedot.global/casecounts/?diseaseIds=64&subLocationTypes=6&&isAggregated=FALSE&includeSources=true&includeCsv=FALSE&api-version=v1"
+  res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")) |> content()
+  data <- enframe(pluck(res, "data")) |> unnest_wider(value)
+  return(data)
+}
+df_mpox <- mpox_pull()
+location <- df_mpox[[locationName]]
 ```
 
 
@@ -82,16 +90,18 @@ actionButton("run_4", "Update Data")
 htmlOutput("table_research")
 ```
 
-# Disease Knowledge
+# Mpox Daily updates
 ## Row
 ### {.sidebar}
 ```{r}
-input()
+selectizeInput("country_5", "Filter negara:", location, selected = NULL, multiple = TRUE)
+br()
+actionButton("run_5", "Update Data")
 ```
-### Column
-#### Row
-```{r}
 
+### Column
+```{r}
+htmlOutput("table_mpox")
 ```
 
 ```{r}
@@ -145,6 +155,10 @@ disease <- "15,141,83,164,84,166,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,
       filter(grepl("scientific research", tags))
     return(data4)
     })
+  data5 <- reactive(input$country_5, {
+    
+  })
+  
   output$table_newsfeed <- renderText(data1() |> mutate(sourceUrl = paste0("<a href='", sourceUrl, "'target='blank_'>Full text</a>")) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed"), full_width = FALSE) |> column_spec(12, width = "30em"))
   output$table_ebs <- renderText(data2() |> mutate(sourceUrl = cell_spec("Full text", "html", link = sourceUrl)) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed")))
   output$table_event <- renderText(data3() |> mutate(sources = paste0("<a href='", sources, "'target='blank_'>Full text</a>")) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed"), full_width = FALSE))
