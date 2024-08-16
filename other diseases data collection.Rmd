@@ -225,7 +225,7 @@ data <- enframe(pluck(res, "data")) |> unnest_wider(value)
 # Mpox
 ## From Event-based
 ```{r}
-url <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=64&subLocationTypes=4&startDate=2024-01-01&isAggregated=FALSE&includeSources=TRUE&includeCsv=FALSE&api-version=v1")
+url <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=64&subLocationTypes=6&startDate=2024-01-01&isAggregated=FALSE&includeSources=TRUE&includeCsv=FALSE&api-version=v1")
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")) |> content()
 mpox <- enframe(pluck(res, "data")) |> unnest_wider(value) |> 
   unnest(minSources) |> unnest_wider(minSources) |> select(!c(maxSources)) |> 
@@ -239,13 +239,13 @@ mpox_daily <- mpox |> group_by(countryName, date) |>
             num_death = sum(maxTotalDeaths))
 View(mpox_daily)
 ```
+
 ```{r}
 mpox_daily_wide <- mpox_daily |> 
   arrange(date) |> 
   pivot_longer(cols = c("num_case", "num_death"), names_to = "vars", values_to = "n") |> 
   pivot_wider(names_from = "date", values_from = "n", values_fill = 0)
 ```
-
 
 ```{r}
 ggplot(mpox_daily, aes(x = date, y = num_case, colour = countryName)) + geom_line()
