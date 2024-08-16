@@ -161,7 +161,7 @@ data1 <- eventReactive(input$run_1, {
     
     })
   data5 <- reactive({
-    data <- df_mpox |> filter(locationName == input$country_5)
+    data <- df_mpox |> filter(locationName  input$country_5)
     return(data)
   })
   

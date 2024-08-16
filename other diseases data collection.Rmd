@@ -8,12 +8,13 @@ date: "2023-07-10"
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r library, message=FALSE, warning=FALSE}
+```{r library, message=FALSE, warning=FALSE, include=FALSE}
 library(httr)
 library(jsonlite)
 library(tidyverse)
 library(gt)
 library(kableExtra)
+library(zoo)
 ```
 
 ```{r setting date and default diseases}
@@ -219,5 +220,49 @@ flextable(zikaData)
 url <- paste0("https://developer.bluedot.global/casecounts/diseases/", 88, "?locationIds=1966436&startDate=", startDate, "&endDate=", endDate, "&isAggregated=false&includeSources=false&api-version=v1")
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "5f645982e25d4a729d7292b890a8ed31", "Cache-Control" = "no-cache")) |> content()
 data <- enframe(pluck(res, "data")) |> unnest_wider(value)
+```
+
+# Mpox
+## From Event-based
+```{r}
+url <- paste0("https://developer.bluedot.global/casecounts/?diseaseIds=64&subLocationTypes=4&startDate=2024-01-01&isAggregated=FALSE&includeSources=TRUE&includeCsv=FALSE&api-version=v1")
+res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "52bd528ca9cd407394791ca418a7b409", "Cache-Control" = "no-cache")) |> content()
+mpox <- enframe(pluck(res, "data")) |> unnest_wider(value) |> 
+  unnest(minSources) |> unnest_wider(minSources) |> select(!c(maxSources)) |> 
+  mutate(date = as.Date(publishedDate))
+View(mpox)
+```
+
+```{r}
+mpox_daily <- mpox |> group_by(countryName, date) |>
+  summarise(num_case = sum(maxTotalReportedCases),
+            num_death = sum(maxTotalDeaths))
+View(mpox_daily)
+```
+```{r}
+mpox_daily_wide <- mpox_daily |> 
+  arrange(date) |> 
+  pivot_longer(cols = c("num_case", "num_death"), names_to = "vars", values_to = "n") |> 
+  pivot_wider(names_from = "date", values_from = "n", values_fill = 0)
+```
+
+
+```{r}
+ggplot(mpox_daily, aes(x = date, y = num_case, colour = countryName)) + geom_line()
+```
+
+## From Indicator-based
+```{r}
+link <- "https://raw.githubusercontent.com/owid/monkeypox/main/owid-monkeypox-data.csv"
+download.file(link, "mpox-owid.csv")
+data <- read_csv("mpox-owid.csv")
+world_data <- data |> 
+  filter(iso_code %in% c("OWID_AFR", "OWID_ASI", "OWID_EUR", "OWID_NAM", "OWID_SAM", "OWID_OCE"), 
+        date >= "2024-01-01") |> 
+  mutate(new_cases_ma = rollmean(new_cases, k = 7, fill = NA))
+```
+
+```{r}
+ggplot(world_data, aes(x = date, y = new_cases_smoothed, colour = location)) + geom_line()
 ```
 
