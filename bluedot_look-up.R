@@ -2,6 +2,7 @@ library(tidyverse)
 library(httr)
 library(jsonlite)
 library(curl)
+library(writexl)
 
 # Disease codes
 ## List all disease codes
@@ -25,6 +26,8 @@ url <- "https://developer.bluedot.global/vulnerability-indicator/population-dens
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "ae0e017fd9b9419a927a00f3f1524edb", "Cache-Control" = "no-cache")) |> content()
 data <- enframe(pluck(res, "data")) |> unnest_wider(value)
 
+write_xlsx(data, "bluedot country list.xlsx")
+
 ## Look up specific location based on string
 location_search <- function(country, level) {
   url <- paste0("https://developer.bluedot.global/lookups/locations?locationType=", level, "&countryName=", country, "&api-version=v1")
@@ -33,7 +36,7 @@ location_search <- function(country, level) {
   return(data)
 }
 
-location_search(country = "indonesia", level = 6)
+location_search(country = "central african republic", level = 6)
 
 # Airport code search
 airport_search <- function(locationId) {
