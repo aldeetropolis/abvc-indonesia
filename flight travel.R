@@ -64,6 +64,17 @@ africa <- "239880,2260494,203312,192950,226074,2233387,2328926,2395170,357994,95
 # Historical air travel passenger volume
 url <- paste0("https://developer.bluedot.global/travel/air/?originLocationIds=", africa, "&destinationLocationIds=", ams, "&startDate=2023-01&endDate=2023-12&api-version=v1")
 res <- GET(url, add_headers("Ocp-Apim-Subscription-Key" = "371e207132a2497f8e981a8d3264788b", "Cache-Control" = "no-cache")) |> content()
-historical_flight_africa_asean <- enframe(pluck(res, "data")) |> unnest_wider(value)
+historical_flight_africa_asean <- enframe(pluck(res, "data")) |> unnest_wider(value) |> 
+  group_by(originCountryName, destinationCountryName)
 
 # Forecasted air travel passenger volume
+
+# Sankey diagram of flight travel
+library(tidygraph)
+library(networkD3)
+
+passenger_historical <- read_csv()
+
+passenger_historical_tibble <- passenger_historical |> as_tibble() |> 
+  mutate(row = row_number()) |> 
+  pivot_longer(cols = c(-row, totalPassengerVolume))

@@ -56,7 +56,7 @@ airport_info <- function(airportCode) {
   return(data)
 }
 
-airport_info("CGK")
+airport_info(airportCode = "CGK,YIA")
 
 # Newsfeeds Look-up
 url <-  "https://developer.bluedot.global/daas/lookup/articles/themes/?api-version=v1"
