@@ -91,23 +91,9 @@ actionButton("run_4", "Update Data")
 htmlOutput("table_research")
 ```
 
-# Mpox Daily updates
-## Row
-### {.sidebar}
-```{r}
-selectizeInput("country_5", "Filter negara:", location, selected = NULL, multiple = TRUE)
-br()
-actionButton("run_5", "Update Data")
-```
-
-### Column
-```{r}
-htmlOutput("table_mpox")
-```
-
 ```{r}
 #| context: server
-disease <- "15,141,83,164,84,166,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,110,113,136,212,215,216,224,264,200,41,40,39,37,64,239,47"
+disease <- "15,141,83,164,84,166,55,53,88,38,63,13,4,205,10,43,26,153,156,162,6,110,113,136,212,215,216,224,264,200,41,40,39,37,64,239,47,137,171,310,311,312,313,314,315,316,340,341"
 data1 <- eventReactive(input$run_1, {
   # Get data from Newsfeed API
   varCountry <- input$country_1
@@ -158,16 +144,10 @@ data1 <- eventReactive(input$run_1, {
                     ~paste0(.,collapse = ", "))) |> 
       filter(grepl("scientific research", tags))
     return(data4)
-    
     })
-  data5 <- reactive({
-    data <- df_mpox |> filter(locationName  input$country_5)
-    return(data)
-  })
   
   output$table_newsfeed <- renderText(data1() |> mutate(sourceUrl = paste0("<a href='", sourceUrl, "'target='blank_'>Full text</a>")) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed"), full_width = FALSE) |> column_spec(12, width = "30em"))
   output$table_ebs <- renderText(data2() |> mutate(sourceUrl = cell_spec("Full text", "html", link = sourceUrl)) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed")))
   output$table_event <- renderText(data3() |> mutate(sources = paste0("<a href='", sources, "'target='blank_'>Full text</a>")) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed"), full_width = FALSE))
   output$table_research <- renderText(data4() |> mutate(sourceUrl = paste0("<a href='", sourceUrl, "'target='blank_'>Full text</a>")) |> kable("html", escape = FALSE) |> kable_styling(bootstrap_options = c("hover", "condensed"), full_width = FALSE) |> column_spec(12, width = "30em"))
-  output$table_mpox <- renderText(data5())
 ```
